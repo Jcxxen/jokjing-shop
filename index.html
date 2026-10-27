@@ -101,6 +101,7 @@
       font-size: 13px;
       white-space: nowrap;
       font-weight: bold;
+      display: none; /* ซ่อนไว้ก่อน จะโชว์เฉพาะตอนสมัครสมาชิก */
     }
     .btn-random:hover { background: #7c3aed; }
 
@@ -207,11 +208,11 @@
       <h3 id="modal-title">เข้าสู่ระบบ</h3>
       <form id="auth-form">
         
-        <!-- ช่องที่ 1: ชื่อสไตล์ญี่ปุ่น + ปุ่มสุ่ม -->
+        <!-- ช่องที่ 1: ชื่อ + ปุ่มสุ่ม (ซ่อนปุ่มสุ่มในหน้าเข้าสู่ระบบ) -->
         <div class="form-group">
-          <label>ชื่อผู้ใช้งาน (Username)</label>
+          <label id="username-label">ชื่อผู้ใช้งาน (Username)</label>
           <div class="input-group">
-            <input type="text" id="auth-username" required placeholder="คลิกปุ่มสุ่มชื่อได้เลย">
+            <input type="text" id="auth-username" required placeholder="กรอกชื่อผู้ใช้ของคุณ">
             <button type="button" class="btn-random" id="btn-random-name" title="สุ่มชื่อญี่ปุ่น">🎲 สุ่มชื่อ</button>
           </div>
         </div>
@@ -268,17 +269,19 @@
     const btnRandomName = document.getElementById("btn-random-name");
     const forgotLink = document.getElementById("forgot-link");
 
-    // รายชื่อสไตล์ญี่ปุ่นเท่ๆ ผสมตัวเลขสุ่ม
+    // รายชื่อไทยสไตล์ญี่ปุ่น 50 ชื่อ
     const japaneseNames = [
-      "โซระ", "ฮารุ", "เร็น", "อากิระ", "ไดจิ", 
-      "ยู키", "ริน", "ไคโตะ", "สึบาสะ", "ริว", 
-      "โชตะ", "ฮินะ", "มิคู", "ซากุระ", "เคย์"
+      "ฮารุ", "โซระ", "เร็น", "อากิระ", "ไดจิ", "ยูคิ", "ริน", "ไคโตะ", "สึบาสะ", "ริว",
+      "โชตะ", "ฮินะ", "มิคู", "ซากุระ", "เคย์", "ฮิคาริ", "เคนจิ", "นาโอกิ", "คาซึมะ", "โยชิ",
+      "ทาเคชิ", "ชินจิ", "เรียวโกะ", "ยูมิ", "อาโออิ", "มายูมิ", "ฮิเดกิ", "เคนโตะ", "โชชิ", "ทาคาชิ",
+      "ฮารุโตะ", "มินาโตะ", "ริกุ", "โซตะ", "ยูโตะ", "โคทาโร่", "คาโอรุ", "ฮายาโตะ", "ไดสุเกะ", "ชินตารุ",
+      "นานามิ", "อายาเมะ", "คิโยชิ", "โคเฮย์", "เรียวตะ", "โชโกะ", "ยูยะ", "มาซาชิ", "โทโมยะ", "คาซึกิ"
     ];
     
+    // กดสุ่มชื่อ (เอาเฉพาะคำชื่อญี่ปุ่นก่อน เดี๋ยวเลขลำดับจะถูกใส่ให้อัตโนมัติเวลาสมัคร)
     btnRandomName.addEventListener("click", () => {
       const randomName = japaneseNames[Math.floor(Math.random() * japaneseNames.length)];
-      const randomNumber = Math.floor(100 + Math.random() * 900);
-      usernameInput.value = `${randomName}_${randomNumber}`;
+      usernameInput.value = randomName;
     });
 
     // ปุ่มลืมรหัสผ่าน
@@ -313,39 +316,57 @@
       authModal.style.display = "none";
     });
 
+    // สลับโหมด เข้าสู่ระบบ / สมัครสมาชิก
     switchModeBtn.addEventListener("click", () => {
       isSignUpMode = !isSignUpMode;
       if (isSignUpMode) {
         modalTitle.textContent = "สมัครสมาชิก";
         modalSubmitBtn.textContent = "ยืนยันสมัครสมาชิก";
         switchModeBtn.textContent = "มีบัญชีอยู่แล้ว? เข้าสู่ระบบ";
+        btnRandomName.style.display = "block"; // แสดงปุ่มสุ่มชื่อตอนสมัครสมาชิก
+        usernameInput.placeholder = "ตั้งชื่อเอง หรือกดสุ่มชื่อได้เลย";
       } else {
         modalTitle.textContent = "เข้าสู่ระบบ";
         modalSubmitBtn.textContent = "เข้าสู่ระบบ";
         switchModeBtn.textContent = "ยังไม่มีบัญชี? สมัครสมาชิก";
+        btnRandomName.style.display = "none"; // ซ่อนปุ่มสุ่มชื่อตอนเข้าสู่ระบบ
+        usernameInput.placeholder = "กรอกชื่อผู้ใช้ของคุณ";
       }
     });
 
     authForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const inputVal = usernameInput.value.trim();
+      const rawInput = usernameInput.value.trim();
       const password = document.getElementById("auth-password").value;
 
       try {
         if (isSignUpMode) {
-          const fakeEmail = `${encodeURIComponent(inputVal).toLowerCase()}@jokjing.shop`;
+          // 1. เช็กจำนวนผู้ใช้ทั้งหมดในระบบเพื่อนำมาทำเลขลำดับ (Member Number)
+          const usersSnap = await getDocs(collection(db, "users"));
+          const memberNo = usersSnap.size + 1; // ลำดับผู้สมัครคนที่เท่าไหร่
+          const formattedNo = String(memberNo).padStart(3, '0'); // จัดรูปแบบเป็น 001, 002, 015
+          
+          // 2. สร้าง Username พร้อมใส่เลขลำดับท้ายชื่อ เช่น ฮารุ_#001
+          const finalUsername = `${rawInput}_#${formattedNo}`;
+          const fakeEmail = `${encodeURIComponent(finalUsername).toLowerCase()}@jokjing.shop`;
+          
+          // 3. สร้างบัญชีผู้ใช้ใน Firebase Auth
           const cred = await createUserWithEmailAndPassword(auth, fakeEmail, password);
           
+          // 4. บันทึกข้อมูลสมาชิกลงใน Firestore
           await setDoc(doc(db, "users", cred.user.uid), {
-            username: inputVal,
+            username: finalUsername,
+            memberNo: memberNo,
+            role: "customer",
             createdAt: new Date()
           });
 
-          alert("สมัครสมาชิกสำเร็จ!");
+          alert(`สมัครสมาชิกสำเร็จ! บัญชีของคุณคือ: ${finalUsername}`);
         } else {
-          let loginEmail = inputVal;
-          if (!inputVal.includes("@")) {
-            loginEmail = `${encodeURIComponent(inputVal).toLowerCase()}@jokjing.shop`;
+          // โหมดล็อกอิน
+          let loginEmail = rawInput;
+          if (!rawInput.includes("@")) {
+            loginEmail = `${encodeURIComponent(rawInput).toLowerCase()}@jokjing.shop`;
           }
           await signInWithEmailAndPassword(auth, loginEmail, password);
           alert("เข้าสู่ระบบสำเร็จ!");
