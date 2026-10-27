@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>จกจิ๊ง</title>
+  <title>ร้านจกจิ๊ง</title>
 </head>
 <body>
   <h1>สินค้า</h1>
   <div id="list">กำลังโหลด...</div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // เอาค่า Firebase Config ที่ก๊อปปี้มา มาวางตรงนี้
     const firebaseConfig = {
       apiKey: "AIzaSyA16VXbSopR3NTBMD-SU-RCgJV5zLPkkBU",
       authDomain: "jokjing-shop.firebaseapp.com",
@@ -24,7 +23,22 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    // โค้ดส่วนอื่นๆ สำหรับดึงสินค้ามาแสดง...
+    const db = getFirestore(app);
+
+    async function load() {
+      const listDiv = document.getElementById("list");
+      try {
+        const snap = await getDocs(collection(db, "products"));
+        listDiv.innerHTML = "";
+        snap.forEach(doc => {
+          const d = doc.data();
+          listDiv.innerHTML += `<p>${d.name || '-'} : ${d.price || '-'} บาท</p>`;
+        });
+      } catch (err) {
+        listDiv.innerHTML = "เกิดข้อผิดพลาด: " + err.message;
+      }
+    }
+    load();
   </script>
 </body>
 </html>
