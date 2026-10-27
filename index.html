@@ -141,7 +141,7 @@
     }
     .modal-content {
       background: var(--card-bg); color: var(--text-color); padding: 25px; border-radius: 12px;
-      width: 90%; max-width: 480px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;
+      width: 90%; max-width: 520px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;
     }
     .close-btn { float: right; cursor: pointer; font-size: 20px; color: #aaa; }
     .form-group { margin-bottom: 12px; }
@@ -178,7 +178,7 @@
     </div>
   </div>
 
-  <!-- 🚨 Warning Banner (สีส้ม-แดง ตามสั่ง) -->
+  <!-- 🚨 Warning Banner (สีส้ม-แดง) -->
   <div class="warning-banner">
     ⚠️ แจ้งเตือน: ซื้อแล้วไม่รับคืนเงินทุกกรณี กรุณาตรวจสอบรายละเอียดให้เรียบร้อยก่อนทำรายการ!
   </div>
@@ -263,16 +263,16 @@
     </div>
   </div>
 
-  <!-- 🛠️ Admin Dashboard Modal (มาพร้อมระบบคลังสต็อกรหัสสินค้า) -->
+  <!-- 🛠️ Admin Dashboard Modal -->
   <div class="modal" id="admin-modal">
-    <div class="modal-content" style="max-width: 520px;">
+    <div class="modal-content" style="max-width: 540px;">
       <span class="close-btn" id="admin-modal-close">&times;</span>
       <h3>👑 แผงควบคุมเจ้าของร้าน</h3>
       
       <div class="admin-tabs">
         <button class="admin-tab-btn active" onclick="switchAdminTab('orders', this)">🧾 อนุมัติสลิป</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('add-prod', this)">➕ เพิ่มสินค้า</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab('stock', this)">📦 เติมสต็อกรหัส</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('stock', this)">📦 เติม/เช็คสต็อก</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('users', this)">👥 สมาชิก</button>
       </div>
 
@@ -291,19 +291,27 @@
         </form>
       </div>
 
-      <!-- Tab 3: จัดการสต็อกโค้ด/รหัสสินค้า -->
+      <!-- Tab 3: จัดการ & ตรวจสอบสต็อกโค้ด (อัปเดตให้เห็นชื่อ/รหัส/ลำดับปัจจุบัน) -->
       <div class="admin-sec" id="admin-sec-stock">
         <form id="add-stock-form">
           <div class="form-group">
-            <label>เลือกสินค้าที่จะเติมสต็อก:</label>
-            <select id="stock-product-select" required></select>
+            <label>เลือกสินค้า:</label>
+            <select id="stock-product-select" required onchange="renderStockDetails()"></select>
+          </div>
+          <div id="stock-status-preview" style="background:var(--bg-color); border:1px solid var(--border-color); padding:10px; border-radius:6px; margin-bottom:10px; font-size:12px;">
+            <!-- แสดงข้อมูลจำนวนและลำดับสต็อกปัจจุบัน -->
           </div>
           <div class="form-group">
-            <label>รายการรหัส / โค้ดสินค้า (ใส่ทีละบรรทัด):</label>
-            <textarea id="stock-codes-input" rows="5" placeholder="user:pass หรือ Redeem Code บรรทัดละ 1 ชุด"></textarea>
+            <label>เพิ่มรหัส / โค้ดสินค้าใหม่ (ใส่ทีละบรรทัด):</label>
+            <textarea id="stock-codes-input" rows="4" placeholder="user:pass หรือโค้ดใหม่ บรรทัดละ 1 ชุด"></textarea>
           </div>
-          <button type="submit" class="btn-submit">📥 บันทึกเข้าคลังสต็อก</button>
+          <button type="submit" class="btn-submit">📥 บันทึกเพิ่มเข้าคลังสต็อก</button>
         </form>
+        <hr style="margin:15px 0; border:0; border-top:1px solid var(--border-color);">
+        <h4 style="font-size:13px; margin-bottom:5px;">📋 รายการรหัสที่รอส่งในสต็อกปัจจุบัน:</h4>
+        <div id="stock-codes-list-box" style="background:var(--bg-color); border:1px solid var(--border-color); padding:8px; border-radius:6px; max-height:140px; overflow-y:auto; font-size:11px; font-family:monospace;">
+          <!-- แสดงรายการรหัสทั้งหมดที่มีอยู่ -->
+        </div>
       </div>
 
       <!-- Tab 4: รายชื่อสมาชิก -->
@@ -333,7 +341,7 @@
 
     let currentUserData = null;
     let isSignUpMode = false;
-    let allProducts = [];
+    let allProductsData = [];
     let cart = [];
 
     const authModal = document.getElementById("auth-modal");
@@ -451,14 +459,12 @@
       });
     }
 
-    // ระบบอนุมัติและตัดสต็อกแจกรหัสอัตโนมัติ
     window.approveOrder = async function(orderId) {
       try {
         const orderRef = doc(db, "orders", orderId);
         const orderSnap = await getDoc(orderRef);
         const orderData = orderSnap.data();
 
-        // ดึงสินค้าชิ้นแรกในออเดอร์มาตัดสต็อก
         const item = orderData.items[0];
         const prodRef = doc(db, "products", item.productId);
         const prodSnap = await getDoc(prodRef);
@@ -468,7 +474,7 @@
           const prodData = prodSnap.data();
           let codes = prodData.stockCodes || [];
           if (codes.length > 0) {
-            assignedCode = codes.shift(); // หยิบโค้ดตัวแรกออกไป
+            assignedCode = codes.shift(); 
             await updateDoc(prodRef, { stockCodes: codes });
           } else {
             alert("⚠️ เตือน: สต็อกโค้ดในระบบหมด แต่จะอนุมัติออเดอร์ให้");
@@ -482,7 +488,6 @@
       } catch (err) { alert("เกิดข้อผิดพลาด: " + err.message); }
     };
 
-    // เพิ่มสินค้าใหม่
     document.getElementById("add-product-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("prod-name").value.trim();
@@ -498,16 +503,45 @@
       updateAnalyticsStats();
     });
 
-    // เติมสต็อกรหัสสินค้า
+    // โหลดรายชื่อสินค้าในหน้าจัดการสต็อก
     async function loadStockProductDropdown() {
       const select = document.getElementById("stock-product-select");
       select.innerHTML = "";
       const snapshot = await getDocs(collection(db, "products"));
+      allProductsData = [];
       snapshot.forEach(d => {
-        const p = d.data();
-        select.innerHTML += `<option value="${d.id}">${p.name} (คงเหลือ: ${p.stockCodes?.length || 0})</option>`;
+        allProductsData.push({ id: d.id, ...d.data() });
+        select.innerHTML += `<option value="${d.id}">${d.data().name} (คงเหลือ: ${d.data().stockCodes?.length || 0})</option>`;
       });
+      renderStockDetails();
     }
+
+    // แสดงรายละเอียด/รายการรหัสในสต็อกปัจจุบันของสินค้าที่เลือก
+    window.renderStockDetails = function() {
+      const selectedId = document.getElementById("stock-product-select").value;
+      const product = allProductsData.find(p => p.id === selectedId);
+      const previewBox = document.getElementById("stock-status-preview");
+      const listBox = document.getElementById("stock-codes-list-box");
+
+      if (!product) {
+        previewBox.innerHTML = "ไม่พบข้อมูลสินค้า";
+        listBox.innerHTML = "-";
+        return;
+      }
+
+      const codes = product.stockCodes || [];
+      previewBox.innerHTML = `<strong>📦 สินค้า:</strong> ${product.name}<br><strong>📊 คงเหลือในสต็อกปัจจุบัน:</strong> <span style="color:green; font-weight:bold;">${codes.length} รายการ</span> (พร้อมหยิบจ่ายลำดับแรกสุดทันที)`;
+      
+      if (codes.length === 0) {
+        listBox.innerHTML = "<span style='color:red;'>⚠️ ยังไม่มีรหัสในสต็อก กรุณาเติมด่วน!</span>";
+      } else {
+        let htmlStr = "";
+        codes.forEach((c, index) => {
+          htmlStr += `[ลำดับที่ ${index + 1}] ${c}<br>`;
+        });
+        listBox.innerHTML = htmlStr;
+      }
+    };
 
     document.getElementById("add-stock-form").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -535,15 +569,14 @@
       });
     }
 
-    // Products & Cart
     async function loadProducts() {
       const listDiv = document.getElementById("list");
       try {
         const snapshot = await getDocs(collection(db, "products"));
         if (snapshot.empty) { listDiv.innerHTML = "<div class='loading'>ยังไม่มีสินค้า</div>"; return; }
-        allProducts = [];
-        snapshot.forEach(d => allProducts.push({ id: d.id, ...d.data() }));
-        renderProducts(allProducts);
+        let productsArray = [];
+        snapshot.forEach(d => productsArray.push({ id: d.id, ...d.data() }));
+        renderProducts(productsArray);
       } catch (e) { listDiv.innerHTML = "<div class='loading'>โหลดไม่สำเร็จ</div>"; }
     }
 
