@@ -18,7 +18,7 @@
     .navbar {
       background: linear-gradient(135deg, #6366f1, #a855f7);
       color: white;
-      padding: 12px 20px;
+      padding: 10px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -27,7 +27,7 @@
       top: 0;
       z-index: 90;
     }
-    .nav-left, .nav-right { display: flex; align-items: center; gap: 15px; }
+    .nav-left, .nav-right { display: flex; align-items: center; gap: 12px; }
     .icon-btn {
       background: none;
       border: none;
@@ -38,7 +38,21 @@
       display: flex;
       align-items: center;
     }
-    .brand-title { font-size: 20px; font-weight: bold; }
+    .brand-logo {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #6366f1;
+      font-size: 18px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .brand-title { font-size: 18px; font-weight: bold; }
+    
     .user-avatar-btn {
       width: 38px;
       height: 38px;
@@ -52,10 +66,11 @@
       cursor: pointer;
       border: 2px solid rgba(255,255,255,0.8);
       overflow: hidden;
+      font-size: 16px;
     }
     .user-avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* Side Drawer Menu (ขีด 3 ขีด) */
+    /* Side Drawer Menu */
     .drawer {
       position: fixed;
       top: 0; left: -280px;
@@ -69,14 +84,14 @@
     }
     .drawer.open { left: 0; }
     .drawer-header {
-      background: #6366f1;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
       color: white;
       padding: 20px;
       font-size: 18px;
       font-weight: bold;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 10px;
     }
     .drawer-menu { list-style: none; padding: 0; margin: 0; }
     .drawer-menu li a {
@@ -86,9 +101,7 @@
       text-decoration: none;
       border-bottom: 1px solid #f0f0f0;
       font-weight: 500;
-      transition: background 0.2s;
     }
-    .drawer-menu li a:hover { background: #f8f9fa; color: #6366f1; }
     .overlay {
       display: none;
       position: fixed;
@@ -162,7 +175,7 @@
     }
     .loading { text-align: center; color: #6b7280; padding: 40px; }
 
-    /* Modals (Auth & Profile) */
+    /* Modals */
     .modal {
       display: none;
       position: fixed;
@@ -192,29 +205,40 @@
     .btn-submit { width: 100%; background: #22c55e; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .switch-mode { text-align: center; margin-top: 15px; font-size: 13px; color: #6366f1; cursor: pointer; text-decoration: underline; }
 
-    /* Profile Specific Styling */
-    .profile-card { text-align: center; margin-bottom: 20px; }
+    /* Profile Card & Collapsible Pass Change */
+    .profile-card { text-align: center; margin-bottom: 15px; }
     .profile-img-large {
       width: 80px; height: 80px; border-radius: 50%;
-      background: #e0e7ff; color: #6366f1; font-size: 36px;
+      background: #e0e7ff; color: #6366f1; font-size: 32px;
       display: flex; justify-content: center; align-items: center;
-      margin: 0 auto 10px auto; font-weight: bold;
+      margin: 0 auto 10px auto; font-weight: bold; overflow: hidden;
+      border: 3px solid #6366f1;
     }
+    .profile-img-large img { width: 100%; height: 100%; object-fit: cover; }
     .user-badge {
       display: inline-block;
-      background: #e0e7ff;
-      color: #4338ca;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: bold;
-      margin-top: 4px;
+      background: #e0e7ff; color: #4338ca;
+      padding: 4px 12px; border-radius: 12px;
+      font-size: 12px; font-weight: bold; margin-top: 4px;
     }
-    .change-pass-section {
-      border-top: 1px solid #eee;
-      padding-top: 15px;
-      margin-top: 15px;
+    .edit-profile-btn {
+      background: #f3f4f6; border: 1px solid #ddd;
+      padding: 6px 12px; border-radius: 6px;
+      font-size: 12px; cursor: pointer; margin-top: 10px; font-weight: bold;
     }
+    
+    /* Collapsible Box for Changing Password */
+    .collapse-btn {
+      width: 100%; background: #f8f9fa; border: 1px solid #e5e7eb;
+      padding: 10px; border-radius: 8px; font-size: 13px; font-weight: bold;
+      color: #4b5563; text-align: left; cursor: pointer; display: flex;
+      justify-content: space-between; align-items: center; margin-top: 15px;
+    }
+    .collapse-content {
+      display: none; padding: 12px; background: #fafafa;
+      border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;
+    }
+
     .btn-logout-full {
       width: 100%; background: #ef4444; color: white; border: none;
       padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;
@@ -224,10 +248,11 @@
 </head>
 <body>
 
-  <!-- 🟢 Top Navigation Bar -->
+  <!-- Top Navigation Bar -->
   <div class="navbar">
     <div class="nav-left">
       <button class="icon-btn" id="open-drawer-btn">☰</button>
+      <div class="brand-logo">จก</div>
       <span class="brand-title">ร้านจกจิ๊ง</span>
     </div>
     <div class="nav-right">
@@ -235,12 +260,12 @@
     </div>
   </div>
 
-  <!-- 🟢 Drawer Menu (ขีด 3 ขีด) -->
+  <!-- Drawer Menu -->
   <div class="overlay" id="menu-overlay"></div>
   <div class="drawer" id="side-drawer">
     <div class="drawer-header">
-      <span>เมนูหลัก</span>
-      <span style="cursor:pointer;" id="close-drawer-btn">&times;</span>
+      <div class="brand-logo" style="width:30px;height:30px;font-size:14px;">จก</div>
+      <span>ร้านจกจิ๊ง Shop</span>
     </div>
     <ul class="drawer-menu">
       <li><a href="#" onclick="closeDrawer()">🏠 หน้าหลัก</a></li>
@@ -250,21 +275,21 @@
     </ul>
   </div>
 
-  <!-- 🟢 หมวดหมู่สินค้า -->
+  <!-- Categories -->
   <div class="categories">
     <button class="tab-btn active" onclick="filterCategory('all', this)">ทั้งหมด</button>
     <button class="tab-btn" onclick="filterCategory('streaming', this)">📺 สตรีมมิ่ง</button>
     <button class="tab-btn" onclick="filterCategory('utility', this)">🛠️ แอปทั่วไป/เครื่องมือ</button>
   </div>
 
-  <!-- 🟢 รายการสินค้า -->
+  <!-- Product Container -->
   <div class="container">
     <div id="list">
       <div class="loading">กำลังโหลดสินค้า...</div>
     </div>
   </div>
 
-  <!-- 🟢 Modal เข้าสู่ระบบ / สมัครสมาชิก -->
+  <!-- Auth Modal -->
   <div class="modal" id="auth-modal">
     <div class="modal-content">
       <span class="close-btn" id="auth-modal-close">&times;</span>
@@ -287,20 +312,38 @@
     </div>
   </div>
 
-  <!-- 🟢 Modal โปรไฟล์ผู้ใช้งาน (กดรูปขวาบน) -->
+  <!-- Profile Modal -->
   <div class="modal" id="profile-modal">
     <div class="modal-content">
       <span class="close-btn" id="profile-modal-close">&times;</span>
       
       <div class="profile-card">
         <div class="profile-img-large" id="profile-avatar">👤</div>
-        <h3 id="profile-username" style="margin: 5px 0;">กำลังโหลด...</h3>
+        <h3 id="profile-display-name" style="margin: 5px 0;">กำลังโหลด...</h3>
         <span class="user-badge" id="profile-role">ลูกค้าทั่วไป</span>
+        <div><button class="edit-profile-btn" id="toggle-edit-profile-btn">✏️ แก้ไขชื่อ & รูปโปรไฟล์</button></div>
       </div>
 
-      <!-- ฟอร์มเปลี่ยนรหัสผ่านได้เอง -->
-      <div class="change-pass-section">
-        <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #444;">🔑 เปลี่ยนรหัสผ่าน</h4>
+      <!-- Form แก้ไขชื่อและรูป (แสดงเมื่อกดแก้ไข) -->
+      <div id="edit-profile-section" style="display:none; background:#f9fafb; padding:12px; border-radius:8px; margin-bottom:15px; border:1px solid #eee;">
+        <h4 style="margin:0 0 10px 0; font-size:13px;">แก้ไขข้อมูลส่วนตัว</h4>
+        <div class="form-group">
+          <label>ชื่อผู้ใช้งาน (ไม่รวมเลขรหัส):</label>
+          <input type="text" id="edit-name-input" placeholder="พิมพ์ชื่อใหม่ที่ต้องการ">
+        </div>
+        <div class="form-group">
+          <label>URL รูปโปรไฟล์ (ลิงก์รูปภาพ):</label>
+          <input type="text" id="edit-avatar-url" placeholder="https://example.com/image.jpg">
+        </div>
+        <button class="btn-submit" id="save-profile-btn" style="background:#6366f1; padding:8px;">บันทึกการเปลี่ยนแปลง</button>
+      </div>
+
+      <!-- Collapsible Pass Change -->
+      <button class="collapse-btn" id="toggle-pass-btn">
+        <span>🔑 เปลี่ยนรหัสผ่าน</span>
+        <span id="pass-arrow">▼</span>
+      </button>
+      <div class="collapse-content" id="pass-content">
         <form id="change-pass-form">
           <div class="form-group">
             <input type="password" id="old-password" required placeholder="รหัสผ่านปัจจุบัน">
@@ -308,7 +351,7 @@
           <div class="form-group">
             <input type="password" id="new-password" required placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)">
           </div>
-          <button type="submit" class="btn-submit" style="background:#8b5cf6;">อัปเดตรหัสผ่าน</button>
+          <button type="submit" class="btn-submit" style="background:#8b5cf6; padding:8px;">อัปเดตรหัสผ่าน</button>
         </form>
       </div>
 
@@ -318,7 +361,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { 
       getAuth, 
       createUserWithEmailAndPassword, 
@@ -347,13 +390,12 @@
     let isSignUpMode = false;
     let allProducts = [];
 
-    // UI Elements
     const sideDrawer = document.getElementById("side-drawer");
     const menuOverlay = document.getElementById("menu-overlay");
     const authModal = document.getElementById("auth-modal");
     const profileModal = document.getElementById("profile-modal");
 
-    // --- Drawer Controller ---
+    // Drawer Controls
     document.getElementById("open-drawer-btn").addEventListener("click", () => {
       sideDrawer.classList.add("open");
       menuOverlay.classList.add("open");
@@ -362,10 +404,9 @@
       sideDrawer.classList.remove("open");
       menuOverlay.classList.remove("open");
     };
-    document.getElementById("close-drawer-btn").addEventListener("click", closeDrawer);
     menuOverlay.addEventListener("click", closeDrawer);
 
-    // --- Profile & Auth Modals ---
+    // Profile Modals
     document.getElementById("profile-icon-btn").addEventListener("click", () => {
       if (auth.currentUser) {
         profileModal.style.display = "flex";
@@ -377,6 +418,25 @@
     document.getElementById("auth-modal-close").addEventListener("click", () => authModal.style.display = "none");
     document.getElementById("profile-modal-close").addEventListener("click", () => profileModal.style.display = "none");
 
+    // Toggle Edit Profile Section
+    document.getElementById("toggle-edit-profile-btn").addEventListener("click", () => {
+      const editSec = document.getElementById("edit-profile-section");
+      editSec.style.display = editSec.style.display === "none" ? "block" : "none";
+    });
+
+    // Toggle Collapsible Password Change
+    document.getElementById("toggle-pass-btn").addEventListener("click", () => {
+      const content = document.getElementById("pass-content");
+      const arrow = document.getElementById("pass-arrow");
+      if (content.style.display === "block") {
+        content.style.display = "none";
+        arrow.textContent = "▼";
+      } else {
+        content.style.display = "block";
+        arrow.textContent = "▲";
+      }
+    });
+
     // Random Name Generator
     const japaneseNames = ["ฮารุ", "โซระ", "เร็น", "อากิระ", "ไดจิ", "ยูคิ", "ริน", "ไคโตะ", "สึบาสะ", "ริว", "โชตะ", "ฮินะ", "มิคู", "ซากุระ", "เคย์"];
     document.getElementById("btn-random-name").addEventListener("click", () => {
@@ -384,17 +444,28 @@
       document.getElementById("auth-username").value = name;
     });
 
-    // --- Auth State Monitor ---
+    // Auth Monitor & Profile Render
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           currentUserData = userDoc.data();
-          const name = currentUserData.username || "สมาชิก";
-          document.getElementById("profile-username").textContent = name;
+          const fullName = currentUserData.username || "สมาชิก";
+          
+          document.getElementById("profile-display-name").textContent = fullName;
           document.getElementById("profile-role").textContent = currentUserData.role === "agent" ? "ตัวแทนจำหน่าย" : "ลูกค้าทั่วไป";
-          document.getElementById("profile-avatar").textContent = name.charAt(0);
-          document.getElementById("profile-icon-btn").textContent = name.charAt(0);
+          
+          // Render Avatar Image / Icon
+          const avatarContainer = document.getElementById("profile-avatar");
+          const topIconContainer = document.getElementById("profile-icon-btn");
+
+          if (currentUserData.photoURL) {
+            avatarContainer.innerHTML = `<img src="${currentUserData.photoURL}" alt="avatar">`;
+            topIconContainer.innerHTML = `<img src="${currentUserData.photoURL}" alt="avatar">`;
+          } else {
+            avatarContainer.textContent = fullName.charAt(0);
+            topIconContainer.textContent = fullName.charAt(0);
+          }
         }
       } else {
         currentUserData = null;
@@ -402,7 +473,38 @@
       }
     });
 
-    // Switch Mode
+    // Save Name & Profile Picture Edit
+    document.getElementById("save-profile-btn").addEventListener("click", async () => {
+      const newBaseName = document.getElementById("edit-name-input").value.trim();
+      const newAvatarUrl = document.getElementById("edit-avatar-url").value.trim();
+      const user = auth.currentUser;
+
+      if (!user || !currentUserData) return;
+
+      try {
+        const updates = {};
+        if (newBaseName) {
+          // ดึงเฉพาะเลขรหัสประจำตัวเดิมมาต่อท้าย เช่น _#001 (ห้ามเปลี่ยนเลขรหัส)
+          const memberCode = currentUserData.username.includes("_#") 
+            ? currentUserData.username.substring(currentUserData.username.indexOf("_#")) 
+            : "";
+          updates.username = `${newBaseName}${memberCode}`;
+        }
+        if (newAvatarUrl) {
+          updates.photoURL = newAvatarUrl;
+        }
+
+        if (Object.keys(updates).length > 0) {
+          await updateDoc(doc(db, "users", user.uid), updates);
+          alert("อัปเดตข้อมูลส่วนตัวเรียบร้อยแล้ว!");
+          location.reload();
+        }
+      } catch (error) {
+        alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล: " + error.message);
+      }
+    });
+
+    // Switch Sign In / Sign Up
     document.getElementById("switch-mode-btn").addEventListener("click", () => {
       isSignUpMode = !isSignUpMode;
       const title = document.getElementById("modal-title");
@@ -423,7 +525,7 @@
       }
     });
 
-    // Auth Form Submit
+    // Form Auth Submit
     document.getElementById("auth-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const rawInput = document.getElementById("auth-username").value.trim();
@@ -442,6 +544,7 @@
             username: finalUsername,
             memberNo: memberNo,
             role: "customer",
+            photoURL: "",
             createdAt: new Date()
           });
           alert(`สมัครสมาชิกสำเร็จ! ชื่อของคุณคือ: ${finalUsername}`);
@@ -460,7 +563,7 @@
       }
     });
 
-    // --- เปลี่ยนรหัสผ่านด้วยตนเอง ---
+    // Change Password Action
     document.getElementById("change-pass-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const oldPass = document.getElementById("old-password").value;
@@ -470,11 +573,8 @@
       if (!user) return;
 
       try {
-        // Re-authenticate ยืนยันรหัสเก่าก่อน
         const credential = EmailAuthProvider.credential(user.email, oldPass);
         await reauthenticateWithCredential(user, credential);
-        
-        // อัปเดตรหัสผ่านใหม่
         await updatePassword(user, newPass);
         alert("เปลี่ยนรหัสผ่านเรียบร้อยแล้ว!");
         document.getElementById("change-pass-form").reset();
@@ -483,14 +583,14 @@
       }
     });
 
-    // Logout
+    // Logout Action
     document.getElementById("logout-btn-full").addEventListener("click", () => {
       signOut(auth);
       profileModal.style.display = "none";
       alert("ออกจากระบบเรียบร้อย");
     });
 
-    // --- Load Products ---
+    // Load Products
     async function loadProducts() {
       const listDiv = document.getElementById("list");
       try {
