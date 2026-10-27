@@ -28,7 +28,8 @@
     async function load() {
       const listDiv = document.getElementById("list");
       try {
-        const snap = await getDocs(collection(db, "products"));
+        // วิ่งเข้าไปดึงข้อมูลตามโครงสร้างที่อยู่ใน Firebase ตอนนี้ครับ
+        const snap = await getDocs(collection(db, "products", "T16hfYCr1a3SV4uyIXep", "products"));
         listDiv.innerHTML = "";
         snap.forEach(doc => {
           const d = doc.data();
