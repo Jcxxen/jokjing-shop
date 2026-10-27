@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ร้านจกจิ๊ง - บริการดิจิทัลพรีเมียม</title>
   <style>
+    * { box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f8f9fa;
+      background: #f4f6f9;
       margin: 0;
       padding: 0;
       color: #333;
@@ -15,28 +16,108 @@
     header {
       background: linear-gradient(135deg, #6366f1, #a855f7);
       color: white;
-      padding: 30px 20px;
+      padding: 20px;
       text-align: center;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    header h1 {
-      margin: 0;
-      font-size: 28px;
+    header h1 { margin: 0; font-size: 26px; }
+    header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }
+
+    /* Nav Bar / User Info */
+    .user-bar {
+      background: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      max-width: 600px;
+      margin: 15px auto 0 auto;
+      border-radius: 10px;
     }
-    header p {
-      margin: 5px 0 0 0;
+    .user-bar .status { font-size: 14px; font-weight: 500; }
+    .btn-auth-trigger {
+      background: #6366f1;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    .btn-logout {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    /* Modal Form */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 380px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .modal-content h3 { margin-top: 0; text-align: center; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 13px; margin-bottom: 5px; color: #555; }
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
       font-size: 14px;
-      opacity: 0.9;
     }
+    .btn-submit {
+      width: 100%;
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .switch-mode {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 13px;
+      color: #6366f1;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .close-btn {
+      float: right;
+      cursor: pointer;
+      font-size: 18px;
+      color: #aaa;
+    }
+
+    /* Product Cards */
     .container {
       max-width: 600px;
-      margin: 20px auto;
+      margin: 15px auto;
       padding: 0 15px;
     }
-    #list {
-      display: grid;
-      gap: 15px;
-    }
+    #list { display: grid; gap: 15px; }
     .product-card {
       background: white;
       padding: 20px;
@@ -45,22 +126,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: transform 0.2s;
     }
-    .product-card:hover {
-      transform: translateY(-2px);
-    }
-    .product-info h3 {
-      margin: 0 0 8px 0;
-      font-size: 18px;
-      color: #1f2937;
-    }
-    .product-info .price {
-      color: #ef4444;
-      font-weight: bold;
-      font-size: 16px;
-      margin: 0;
-    }
+    .product-info h3 { margin: 0 0 8px 0; font-size: 18px; }
+    .product-info .price { color: #ef4444; font-weight: bold; font-size: 16px; margin: 0; }
     .buy-btn {
       background: #22c55e;
       color: white;
@@ -71,16 +139,8 @@
       cursor: pointer;
       text-decoration: none;
       font-size: 14px;
-      transition: background 0.2s;
     }
-    .buy-btn:hover {
-      background: #16a34a;
-    }
-    .loading {
-      text-align: center;
-      color: #6b7280;
-      padding: 40px;
-    }
+    .loading { text-align: center; color: #6b7280; padding: 40px; }
   </style>
 </head>
 <body>
@@ -90,15 +150,48 @@
     <p>แหล่งรวมบริการสตรีมมิ่งและไอเทมดิจิทัลราคาประหยัด</p>
   </header>
 
+  <!-- แถบแสดงสถานะสมาชิก -->
+  <div class="user-bar">
+    <div class="status" id="user-status">กำลังโหลด...</div>
+    <div id="auth-actions"></div>
+  </div>
+
   <div class="container">
     <div id="list">
       <div class="loading">กำลังโหลดสินค้า...</div>
     </div>
   </div>
 
+  <!-- Modal สำหรับ สมัครสมาชิก / ล็อกอิน -->
+  <div class="modal" id="auth-modal">
+    <div class="modal-content">
+      <span class="close-btn" id="modal-close">&times;</span>
+      <h3 id="modal-title">เข้าสู่ระบบ</h3>
+      <form id="auth-form">
+        <div class="form-group">
+          <label>อีเมล</label>
+          <input type="email" id="auth-email" required placeholder="example@email.com">
+        </div>
+        <div class="form-group">
+          <label>รหัสผ่าน</label>
+          <input type="password" id="auth-password" required placeholder="รหัสผ่านอย่างน้อย 6 ตัว">
+        </div>
+        <button type="submit" class="btn-submit" id="modal-submit-btn">เข้าสู่ระบบ</button>
+      </form>
+      <div class="switch-mode" id="switch-mode-btn">ยังไม่มีบัญชี? สมัครสมาชิก</div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      signOut, 
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA16VXbSopR3NTBMD-SU-RCgJV5zLPkkBU",
@@ -111,7 +204,76 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
+    let isSignUpMode = false;
+
+    // elements
+    const userStatusEl = document.getElementById("user-status");
+    const authActionsEl = document.getElementById("auth-actions");
+    const authModal = document.getElementById("auth-modal");
+    const modalTitle = document.getElementById("modal-title");
+    const modalSubmitBtn = document.getElementById("modal-submit-btn");
+    const switchModeBtn = document.getElementById("switch-mode-btn");
+    const authForm = document.getElementById("auth-form");
+
+    // ตรวจสอบสถานะการเข้าสู่ระบบ
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userStatusEl.textContent = `ยินดีต้อนรับ: ${user.email}`;
+        authActionsEl.innerHTML = `<button class="btn-logout" id="logout-btn">ออกจากระบบ</button>`;
+        document.getElementById("logout-btn").addEventListener("click", () => signOut(auth));
+      } else {
+        userStatusEl.textContent = "ยังไม่ได้เข้าสู่ระบบ";
+        authActionsEl.innerHTML = `<button class="btn-auth-trigger" id="open-auth-btn">เข้าสู่ระบบ / สมัครสมาชิก</button>`;
+        document.getElementById("open-auth-btn").addEventListener("click", openModal);
+      }
+    });
+
+    // เปิด-ปิด Modal
+    function openModal() {
+      authModal.style.display = "flex";
+    }
+    document.getElementById("modal-close").addEventListener("click", () => {
+      authModal.style.display = "none";
+    });
+
+    // สลับโหมด ล็อกอิน / สมัครสมาชิก
+    switchModeBtn.addEventListener("click", () => {
+      isSignUpMode = !isSignUpMode;
+      if (isSignUpMode) {
+        modalTitle.textContent = "สมัครสมาชิก";
+        modalSubmitBtn.textContent = "ยืนยันสมัครสมาชิก";
+        switchModeBtn.textContent = "มีบัญชีอยู่แล้ว? เข้าสู่ระบบ";
+      } else {
+        modalTitle.textContent = "เข้าสู่ระบบ";
+        modalSubmitBtn.textContent = "เข้าสู่ระบบ";
+        switchModeBtn.textContent = "ยังไม่มีบัญชี? สมัครสมาชิก";
+      }
+    });
+
+    // ส่งฟอร์ม สมัคร / ล็อกอิน
+    authForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("auth-email").value;
+      const password = document.getElementById("auth-password").value;
+
+      try {
+        if (isSignUpMode) {
+          await createUserWithEmailAndPassword(auth, email, password);
+          alert("สมัครสมาชิกสำเร็จ!");
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+          alert("เข้าสู่ระบบสำเร็จ!");
+        }
+        authModal.style.display = "none";
+        authForm.reset();
+      } catch (error) {
+        alert("เกิดข้อผิดพลาด: " + error.message);
+      }
+    });
+
+    // ดึงข้อมูลสินค้า
     async function loadProducts() {
       const listDiv = document.getElementById("list");
       try {
@@ -123,10 +285,7 @@
         listDiv.innerHTML = "";
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          // ลิงก์ปุ่มสั่งซื้อ สามารถเปลี่ยนเป็นลิงก์ LINE OA ของตัวเองได้เลยครับ
-          const lineMessage = encodeURIComponent(`สนใจสั่งซื้อ ${data.name || 'สินค้า'} ราคา ${data.price || '-'} บาทครับ`);
-          const lineLink = `https://line.me/R/ti/p/@781wfctk`; // แทนที่ด้วยลิงก์ LINE OA ของคุณ
-
+          const lineLink = `https://line.me/R/ti/p/@781wfctk`;
           listDiv.innerHTML += `
             <div class="product-card">
               <div class="product-info">
@@ -145,6 +304,5 @@
 
     loadProducts();
   </script>
-
 </body>
 </html>
