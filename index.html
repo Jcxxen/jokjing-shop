@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ร้านจกจิ๊ง - สินค้าพรีเมียม</title>
+  <style>
+    body { font-family: sans-serif; background: #f4f4f9; margin: 0; padding: 20px; text-align: center; }
+    h1 { color: #333; }
+    #list { margin-top: 20px; font-size: 18px; color: #666; }
+    .product-card { background: white; padding: 15px; margin: 10px auto; max-width: 400px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: left; }
+  </style>
+</head>
+<body>
+
+  <h1>ร้านจกจิ๊ง</h1>
+  <div id="list">กำลังโหลดสินค้า...</div>
+
+  <!-- เรียกใช้งาน Firebase เวอร์ชั่น 10 ผ่าน CDN -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // ค่าเชื่อมต่อ Firebase ของคุณ
+    const firebaseConfig = {
+      apiKey: "AIzaSyA16VXbSopR3NTBMD-SU-RCgJV5zLPkkBU",
+      authDomain: "jokjing-shop.firebaseapp.com",
+      projectId: "jokjing-shop",
+      storageBucket: "jokjing-shop.firebasestorage.app",
+      messagingSenderId: "559683140548",
+      appId: "1:559683140548:web:f540aa77108c5a171cc291"
+    };
+
+    // เริ่มต้นระบบ Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadProducts() {
+      const listDiv = document.getElementById("list");
+      try {
+        const querySnapshot = await getDocs(collection(db, "products")); // เปลี่ยนชื่อคอลเลกชันตามฐานข้อมูลจริงของคุณ
+        if (querySnapshot.empty) {
+          listDiv.innerHTML = "<p>ยังไม่มีสินค้าในระบบ</p>";
+          return;
+        }
+        listDiv.innerHTML = "";
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          listDiv.innerHTML += `
+            <div class="product-card">
+              <h3>${data.name || 'สินค้า'}</h3>
+              <p>ราคา: ${data.price || '-'} บาท</p>
+            </div>
+          `;
+        });
+      } catch (error) {
+        console.error("Error loading products: ", error);
+        listDiv.innerHTML = "<p>โหลดข้อมูลไม่สำเร็จ (ตรวจสอบชื่อ Collection ใน Firebase)</p>";
+      }
+    }
+
+    loadProducts();
+  </script>
+
+</body>
+</html>
