@@ -78,13 +78,51 @@
     .modal-content h3 { margin-top: 0; text-align: center; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 13px; margin-bottom: 5px; color: #555; }
-    .form-group input {
+    
+    /* Input With Button Group */
+    .input-group {
+      display: flex;
+      gap: 6px;
+    }
+    .input-group input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .btn-random {
+      background: #8b5cf6;
+      color: white;
+      border: none;
+      padding: 0 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+      font-weight: bold;
+    }
+    .btn-random:hover { background: #7c3aed; }
+
+    .form-group input[type="password"] {
       width: 100%;
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 6px;
       font-size: 14px;
     }
+
+    .forgot-pass {
+      text-align: right;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .forgot-pass a {
+      color: #6366f1;
+      text-decoration: none;
+    }
+    .forgot-pass a:hover { text-decoration: underline; }
+
     .btn-submit {
       width: 100%;
       background: #22c55e;
@@ -94,7 +132,7 @@
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 15px;
     }
     .switch-mode {
       text-align: center;
@@ -168,14 +206,25 @@
       <span class="close-btn" id="modal-close">&times;</span>
       <h3 id="modal-title">เข้าสู่ระบบ</h3>
       <form id="auth-form">
+        
+        <!-- ช่องที่ 1: ชื่อสไตล์ญี่ปุ่น + ปุ่มสุ่ม -->
         <div class="form-group">
-          <label>อีเมล</label>
-          <input type="email" id="auth-email" required placeholder="example@email.com">
+          <label>ชื่อผู้ใช้งาน (Username)</label>
+          <div class="input-group">
+            <input type="text" id="auth-username" required placeholder="คลิกปุ่มสุ่มชื่อได้เลย">
+            <button type="button" class="btn-random" id="btn-random-name" title="สุ่มชื่อญี่ปุ่น">🎲 สุ่มชื่อ</button>
+          </div>
         </div>
+
+        <!-- ช่องที่ 2: รหัสผ่าน -->
         <div class="form-group">
           <label>รหัสผ่าน</label>
           <input type="password" id="auth-password" required placeholder="รหัสผ่านอย่างน้อย 6 ตัว">
+          <div class="forgot-pass" id="forgot-container">
+            <a href="#" id="forgot-link">ลืมรหัสผ่าน?</a>
+          </div>
         </div>
+
         <button type="submit" class="btn-submit" id="modal-submit-btn">เข้าสู่ระบบ</button>
       </form>
       <div class="switch-mode" id="switch-mode-btn">ยังไม่มีบัญชี? สมัครสมาชิก</div>
@@ -184,7 +233,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { 
       getAuth, 
       createUserWithEmailAndPassword, 
@@ -208,7 +257,6 @@
 
     let isSignUpMode = false;
 
-    // elements
     const userStatusEl = document.getElementById("user-status");
     const authActionsEl = document.getElementById("auth-actions");
     const authModal = document.getElementById("auth-modal");
@@ -216,11 +264,39 @@
     const modalSubmitBtn = document.getElementById("modal-submit-btn");
     const switchModeBtn = document.getElementById("switch-mode-btn");
     const authForm = document.getElementById("auth-form");
+    const usernameInput = document.getElementById("auth-username");
+    const btnRandomName = document.getElementById("btn-random-name");
+    const forgotLink = document.getElementById("forgot-link");
 
-    // ตรวจสอบสถานะการเข้าสู่ระบบ
-    onAuthStateChanged(auth, (user) => {
+    // รายชื่อสไตล์ญี่ปุ่นเท่ๆ ผสมตัวเลขสุ่ม
+    const japaneseNames = [
+      "โซระ", "ฮารุ", "เร็น", "อากิระ", "ไดจิ", 
+      "ยู키", "ริน", "ไคโตะ", "สึบาสะ", "ริว", 
+      "โชตะ", "ฮินะ", "มิคู", "ซากุระ", "เคย์"
+    ];
+    
+    btnRandomName.addEventListener("click", () => {
+      const randomName = japaneseNames[Math.floor(Math.random() * japaneseNames.length)];
+      const randomNumber = Math.floor(100 + Math.random() * 900);
+      usernameInput.value = `${randomName}_${randomNumber}`;
+    });
+
+    // ปุ่มลืมรหัสผ่าน
+    forgotLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      const currentName = usernameInput.value.trim();
+      const lineOA = "https://line.me/R/ti/p/@781wfctk";
+      
+      alert("ระบบจะพาคุณไปยัง LINE ร้านค้าเพื่อแจ้งแอดมินให้ช่วยรีเซ็ตรหัสผ่านครับ");
+      window.open(lineOA, "_blank");
+    });
+
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
-        userStatusEl.textContent = `ยินดีต้อนรับ: ${user.email}`;
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const username = userDoc.exists() ? userDoc.data().username : "สมาชิก";
+        
+        userStatusEl.textContent = `ยินดีต้อนรับ: ${username}`;
         authActionsEl.innerHTML = `<button class="btn-logout" id="logout-btn">ออกจากระบบ</button>`;
         document.getElementById("logout-btn").addEventListener("click", () => signOut(auth));
       } else {
@@ -230,7 +306,6 @@
       }
     });
 
-    // เปิด-ปิด Modal
     function openModal() {
       authModal.style.display = "flex";
     }
@@ -238,7 +313,6 @@
       authModal.style.display = "none";
     });
 
-    // สลับโหมด ล็อกอิน / สมัครสมาชิก
     switchModeBtn.addEventListener("click", () => {
       isSignUpMode = !isSignUpMode;
       if (isSignUpMode) {
@@ -252,18 +326,28 @@
       }
     });
 
-    // ส่งฟอร์ม สมัคร / ล็อกอิน
     authForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = document.getElementById("auth-email").value;
+      const inputVal = usernameInput.value.trim();
       const password = document.getElementById("auth-password").value;
 
       try {
         if (isSignUpMode) {
-          await createUserWithEmailAndPassword(auth, email, password);
+          const fakeEmail = `${encodeURIComponent(inputVal).toLowerCase()}@jokjing.shop`;
+          const cred = await createUserWithEmailAndPassword(auth, fakeEmail, password);
+          
+          await setDoc(doc(db, "users", cred.user.uid), {
+            username: inputVal,
+            createdAt: new Date()
+          });
+
           alert("สมัครสมาชิกสำเร็จ!");
         } else {
-          await signInWithEmailAndPassword(auth, email, password);
+          let loginEmail = inputVal;
+          if (!inputVal.includes("@")) {
+            loginEmail = `${encodeURIComponent(inputVal).toLowerCase()}@jokjing.shop`;
+          }
+          await signInWithEmailAndPassword(auth, loginEmail, password);
           alert("เข้าสู่ระบบสำเร็จ!");
         }
         authModal.style.display = "none";
@@ -273,7 +357,6 @@
       }
     });
 
-    // ดึงข้อมูลสินค้า
     async function loadProducts() {
       const listDiv = document.getElementById("list");
       try {
