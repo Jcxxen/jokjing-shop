@@ -13,54 +13,95 @@
       padding: 0;
       color: #333;
     }
-    header {
+
+    /* Top Navigation Bar */
+    .navbar {
       background: linear-gradient(135deg, #6366f1, #a855f7);
       color: white;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    header h1 { margin: 0; font-size: 26px; }
-    header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }
-
-    /* Nav Bar / User Info */
-    .user-bar {
-      background: white;
       padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      max-width: 600px;
-      margin: 15px auto 0 auto;
-      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 90;
     }
-    .user-bar .status { font-size: 14px; font-weight: 500; }
-    .btn-auth-trigger {
+    .nav-left, .nav-right { display: flex; align-items: center; gap: 15px; }
+    .icon-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+    }
+    .brand-title { font-size: 20px; font-weight: bold; }
+    .user-avatar-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: white;
+      color: #6366f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.8);
+      overflow: hidden;
+    }
+    .user-avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Side Drawer Menu (ขีด 3 ขีด) */
+    .drawer {
+      position: fixed;
+      top: 0; left: -280px;
+      width: 260px; height: 100%;
+      background: white;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      z-index: 100;
+      transition: left 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer.open { left: 0; }
+    .drawer-header {
       background: #6366f1;
       color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
+      padding: 20px;
+      font-size: 18px;
       font-weight: bold;
-      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .btn-logout {
-      background: #ef4444;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 13px;
+    .drawer-menu { list-style: none; padding: 0; margin: 0; }
+    .drawer-menu li a {
+      display: block;
+      padding: 15px 20px;
+      color: #333;
+      text-decoration: none;
+      border-bottom: 1px solid #f0f0f0;
+      font-weight: 500;
+      transition: background 0.2s;
     }
+    .drawer-menu li a:hover { background: #f8f9fa; color: #6366f1; }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      z-index: 95;
+    }
+    .overlay.open { display: block; }
 
     /* Category Tabs */
     .categories {
       max-width: 600px;
-      margin: 15px auto;
+      margin: 15px auto 5px auto;
       padding: 0 15px;
       display: flex;
       gap: 8px;
@@ -75,20 +116,11 @@
       font-size: 13px;
       font-weight: 500;
       white-space: nowrap;
-      transition: all 0.2s;
     }
-    .tab-btn.active {
-      background: #6366f1;
-      color: white;
-      border-color: #6366f1;
-    }
+    .tab-btn.active { background: #6366f1; color: white; border-color: #6366f1; }
 
-    /* Product Container */
-    .container {
-      max-width: 600px;
-      margin: 10px auto;
-      padding: 0 15px;
-    }
+    /* Product Cards */
+    .container { max-width: 600px; margin: 10px auto; padding: 0 15px; }
     #list { display: grid; gap: 15px; }
     .product-card {
       background: white;
@@ -99,19 +131,8 @@
       flex-direction: column;
       gap: 12px;
     }
-    .product-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .product-info h3 { margin: 0; font-size: 18px; color: #1f2937; }
-    
-    /* Package Options Selector */
-    .package-options {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
+    .product-info h3 { margin: 0; font-size: 18px; }
+    .package-options { display: flex; gap: 6px; flex-wrap: wrap; }
     .pkg-chip {
       background: #f3f4f6;
       border: 1px solid #e5e7eb;
@@ -119,15 +140,8 @@
       border-radius: 6px;
       font-size: 12px;
       cursor: pointer;
-      transition: all 0.2s;
     }
-    .pkg-chip.selected {
-      background: #e0e7ff;
-      border-color: #6366f1;
-      color: #4338ca;
-      font-weight: bold;
-    }
-
+    .pkg-chip.selected { background: #e0e7ff; border-color: #6366f1; color: #4338ca; font-weight: bold; }
     .product-footer {
       display: flex;
       justify-content: space-between;
@@ -135,7 +149,7 @@
       border-top: 1px solid #f3f4f6;
       padding-top: 10px;
     }
-    .product-info .price { color: #ef4444; font-weight: bold; font-size: 18px; margin: 0; }
+    .price { color: #ef4444; font-weight: bold; font-size: 18px; margin: 0; }
     .buy-btn {
       background: #22c55e;
       color: white;
@@ -143,14 +157,12 @@
       padding: 8px 16px;
       border-radius: 8px;
       font-weight: bold;
-      cursor: pointer;
       text-decoration: none;
       font-size: 13px;
     }
-    .buy-btn:hover { background: #16a34a; }
     .loading { text-align: center; color: #6b7280; padding: 40px; }
 
-    /* Modal Form (Auth) */
+    /* Modals (Auth & Profile) */
     .modal {
       display: none;
       position: fixed;
@@ -158,63 +170,104 @@
       background: rgba(0,0,0,0.5);
       justify-content: center;
       align-items: center;
-      z-index: 100;
+      z-index: 110;
     }
     .modal-content {
       background: white;
       padding: 25px;
       border-radius: 12px;
       width: 90%;
-      max-width: 380px;
+      max-width: 400px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      max-height: 90vh;
+      overflow-y: auto;
     }
     .modal-content h3 { margin-top: 0; text-align: center; }
+    .close-btn { float: right; cursor: pointer; font-size: 20px; color: #aaa; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 13px; margin-bottom: 5px; color: #555; }
     .input-group { display: flex; gap: 6px; }
-    .input-group input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-    .btn-random {
-      background: #8b5cf6; color: white; border: none; padding: 0 12px;
-      border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; display: none;
-    }
-    .form-group input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-    .forgot-pass { text-align: right; font-size: 12px; margin-top: 4px; }
-    .forgot-pass a { color: #6366f1; text-decoration: none; }
-    .btn-submit { width: 100%; background: #22c55e; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+    .input-group input, .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+    .btn-random { background: #8b5cf6; color: white; border: none; padding: 0 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; display: none; }
+    .btn-submit { width: 100%; background: #22c55e; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .switch-mode { text-align: center; margin-top: 15px; font-size: 13px; color: #6366f1; cursor: pointer; text-decoration: underline; }
-    .close-btn { float: right; cursor: pointer; font-size: 18px; color: #aaa; }
+
+    /* Profile Specific Styling */
+    .profile-card { text-align: center; margin-bottom: 20px; }
+    .profile-img-large {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: #e0e7ff; color: #6366f1; font-size: 36px;
+      display: flex; justify-content: center; align-items: center;
+      margin: 0 auto 10px auto; font-weight: bold;
+    }
+    .user-badge {
+      display: inline-block;
+      background: #e0e7ff;
+      color: #4338ca;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+    .change-pass-section {
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+      margin-top: 15px;
+    }
+    .btn-logout-full {
+      width: 100%; background: #ef4444; color: white; border: none;
+      padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;
+      margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 6px;
+    }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>ร้านจกจิ๊ง</h1>
-    <p>แหล่งรวมบริการสตรีมมิ่งและไอเทมดิจิทัลราคาประหยัด</p>
-  </header>
-
-  <!-- แถบแสดงสถานะสมาชิก -->
-  <div class="user-bar">
-    <div class="status" id="user-status">กำลังโหลด...</div>
-    <div id="auth-actions"></div>
+  <!-- 🟢 Top Navigation Bar -->
+  <div class="navbar">
+    <div class="nav-left">
+      <button class="icon-btn" id="open-drawer-btn">☰</button>
+      <span class="brand-title">ร้านจกจิ๊ง</span>
+    </div>
+    <div class="nav-right">
+      <div class="user-avatar-btn" id="profile-icon-btn">👤</div>
+    </div>
   </div>
 
-  <!-- หมวดหมู่สินค้า -->
+  <!-- 🟢 Drawer Menu (ขีด 3 ขีด) -->
+  <div class="overlay" id="menu-overlay"></div>
+  <div class="drawer" id="side-drawer">
+    <div class="drawer-header">
+      <span>เมนูหลัก</span>
+      <span style="cursor:pointer;" id="close-drawer-btn">&times;</span>
+    </div>
+    <ul class="drawer-menu">
+      <li><a href="#" onclick="closeDrawer()">🏠 หน้าหลัก</a></li>
+      <li><a href="#list" onclick="closeDrawer()">🛒 สินค้าทั้งหมด</a></li>
+      <li><a href="#" onclick="alert('ระบบรีวิวกำลังเปิดให้บริการเร็วๆ นี้'); closeDrawer();">⭐ รีวิวร้านค้า</a></li>
+      <li><a href="https://line.me/R/ti/p/@781wfctk" target="_blank" onclick="closeDrawer()">💬 ติดต่อแอดมิน (LINE)</a></li>
+    </ul>
+  </div>
+
+  <!-- 🟢 หมวดหมู่สินค้า -->
   <div class="categories">
     <button class="tab-btn active" onclick="filterCategory('all', this)">ทั้งหมด</button>
     <button class="tab-btn" onclick="filterCategory('streaming', this)">📺 สตรีมมิ่ง</button>
     <button class="tab-btn" onclick="filterCategory('utility', this)">🛠️ แอปทั่วไป/เครื่องมือ</button>
   </div>
 
+  <!-- 🟢 รายการสินค้า -->
   <div class="container">
     <div id="list">
       <div class="loading">กำลังโหลดสินค้า...</div>
     </div>
   </div>
 
-  <!-- Modal สำหรับ สมัครสมาชิก / ล็อกอิน -->
+  <!-- 🟢 Modal เข้าสู่ระบบ / สมัครสมาชิก -->
   <div class="modal" id="auth-modal">
     <div class="modal-content">
-      <span class="close-btn" id="modal-close">&times;</span>
+      <span class="close-btn" id="auth-modal-close">&times;</span>
       <h3 id="modal-title">เข้าสู่ระบบ</h3>
       <form id="auth-form">
         <div class="form-group">
@@ -227,11 +280,39 @@
         <div class="form-group">
           <label>รหัสผ่าน</label>
           <input type="password" id="auth-password" required placeholder="รหัสผ่านอย่างน้อย 6 ตัว">
-          <div class="forgot-pass"><a href="#" id="forgot-link">ลืมรหัสผ่าน?</a></div>
         </div>
         <button type="submit" class="btn-submit" id="modal-submit-btn">เข้าสู่ระบบ</button>
       </form>
       <div class="switch-mode" id="switch-mode-btn">ยังไม่มีบัญชี? สมัครสมาชิก</div>
+    </div>
+  </div>
+
+  <!-- 🟢 Modal โปรไฟล์ผู้ใช้งาน (กดรูปขวาบน) -->
+  <div class="modal" id="profile-modal">
+    <div class="modal-content">
+      <span class="close-btn" id="profile-modal-close">&times;</span>
+      
+      <div class="profile-card">
+        <div class="profile-img-large" id="profile-avatar">👤</div>
+        <h3 id="profile-username" style="margin: 5px 0;">กำลังโหลด...</h3>
+        <span class="user-badge" id="profile-role">ลูกค้าทั่วไป</span>
+      </div>
+
+      <!-- ฟอร์มเปลี่ยนรหัสผ่านได้เอง -->
+      <div class="change-pass-section">
+        <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #444;">🔑 เปลี่ยนรหัสผ่าน</h4>
+        <form id="change-pass-form">
+          <div class="form-group">
+            <input type="password" id="old-password" required placeholder="รหัสผ่านปัจจุบัน">
+          </div>
+          <div class="form-group">
+            <input type="password" id="new-password" required placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)">
+          </div>
+          <button type="submit" class="btn-submit" style="background:#8b5cf6;">อัปเดตรหัสผ่าน</button>
+        </form>
+      </div>
+
+      <button class="btn-logout-full" id="logout-btn-full">🚪 ออกจากระบบ</button>
     </div>
   </div>
 
@@ -243,7 +324,10 @@
       createUserWithEmailAndPassword, 
       signInWithEmailAndPassword, 
       signOut, 
-      onAuthStateChanged 
+      onAuthStateChanged,
+      EmailAuthProvider,
+      reauthenticateWithCredential,
+      updatePassword
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -259,69 +343,90 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
+    let currentUserData = null;
     let isSignUpMode = false;
-    let allProducts = []; // เก็บข้อมูลสินค้าทั้งหมดไว้กรองหมวดหมู่
+    let allProducts = [];
 
-    const userStatusEl = document.getElementById("user-status");
-    const authActionsEl = document.getElementById("auth-actions");
+    // UI Elements
+    const sideDrawer = document.getElementById("side-drawer");
+    const menuOverlay = document.getElementById("menu-overlay");
     const authModal = document.getElementById("auth-modal");
-    const modalTitle = document.getElementById("modal-title");
-    const modalSubmitBtn = document.getElementById("modal-submit-btn");
-    const switchModeBtn = document.getElementById("switch-mode-btn");
-    const authForm = document.getElementById("auth-form");
-    const usernameInput = document.getElementById("auth-username");
-    const btnRandomName = document.getElementById("btn-random-name");
-    const forgotLink = document.getElementById("forgot-link");
+    const profileModal = document.getElementById("profile-modal");
 
-    const japaneseNames = [
-      "ฮารุ", "โซระ", "เร็น", "อากิระ", "ไดจิ", "ยูคิ", "ริน", "ไคโตะ", "สึบาสะ", "ริว",
-      "โชตะ", "ฮินะ", "มิคู", "ซากุระ", "เคย์", "ฮิคาริ", "เคนจิ", "นาโอกิ", "คาซึมะ", "โยชิ"
-    ];
-    
-    btnRandomName.addEventListener("click", () => {
-      const randomName = japaneseNames[Math.floor(Math.random() * japaneseNames.length)];
-      usernameInput.value = randomName;
+    // --- Drawer Controller ---
+    document.getElementById("open-drawer-btn").addEventListener("click", () => {
+      sideDrawer.classList.add("open");
+      menuOverlay.classList.add("open");
+    });
+    window.closeDrawer = function() {
+      sideDrawer.classList.remove("open");
+      menuOverlay.classList.remove("open");
+    };
+    document.getElementById("close-drawer-btn").addEventListener("click", closeDrawer);
+    menuOverlay.addEventListener("click", closeDrawer);
+
+    // --- Profile & Auth Modals ---
+    document.getElementById("profile-icon-btn").addEventListener("click", () => {
+      if (auth.currentUser) {
+        profileModal.style.display = "flex";
+      } else {
+        authModal.style.display = "flex";
+      }
     });
 
-    forgotLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      window.open("https://line.me/R/ti/p/@781wfctk", "_blank");
+    document.getElementById("auth-modal-close").addEventListener("click", () => authModal.style.display = "none");
+    document.getElementById("profile-modal-close").addEventListener("click", () => profileModal.style.display = "none");
+
+    // Random Name Generator
+    const japaneseNames = ["ฮารุ", "โซระ", "เร็น", "อากิระ", "ไดจิ", "ยูคิ", "ริน", "ไคโตะ", "สึบาสะ", "ริว", "โชตะ", "ฮินะ", "มิคู", "ซากุระ", "เคย์"];
+    document.getElementById("btn-random-name").addEventListener("click", () => {
+      const name = japaneseNames[Math.floor(Math.random() * japaneseNames.length)];
+      document.getElementById("auth-username").value = name;
     });
 
+    // --- Auth State Monitor ---
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const userDoc = await getDoc(doc(db, "users", user.uid));
-        const username = userDoc.exists() ? userDoc.data().username : "สมาชิก";
-        userStatusEl.textContent = `ยินดีต้อนรับ: ${username}`;
-        authActionsEl.innerHTML = `<button class="btn-logout" id="logout-btn">ออกจากระบบ</button>`;
-        document.getElementById("logout-btn").addEventListener("click", () => signOut(auth));
+        if (userDoc.exists()) {
+          currentUserData = userDoc.data();
+          const name = currentUserData.username || "สมาชิก";
+          document.getElementById("profile-username").textContent = name;
+          document.getElementById("profile-role").textContent = currentUserData.role === "agent" ? "ตัวแทนจำหน่าย" : "ลูกค้าทั่วไป";
+          document.getElementById("profile-avatar").textContent = name.charAt(0);
+          document.getElementById("profile-icon-btn").textContent = name.charAt(0);
+        }
       } else {
-        userStatusEl.textContent = "ยังไม่ได้เข้าสู่ระบบ";
-        authActionsEl.innerHTML = `<button class="btn-auth-trigger" id="open-auth-btn">เข้าสู่ระบบ / สมัครสมาชิก</button>`;
-        document.getElementById("open-auth-btn").addEventListener("click", () => authModal.style.display = "flex");
+        currentUserData = null;
+        document.getElementById("profile-icon-btn").textContent = "👤";
       }
     });
 
-    document.getElementById("modal-close").addEventListener("click", () => authModal.style.display = "none");
-
-    switchModeBtn.addEventListener("click", () => {
+    // Switch Mode
+    document.getElementById("switch-mode-btn").addEventListener("click", () => {
       isSignUpMode = !isSignUpMode;
+      const title = document.getElementById("modal-title");
+      const submitBtn = document.getElementById("modal-submit-btn");
+      const switchBtn = document.getElementById("switch-mode-btn");
+      const randomBtn = document.getElementById("btn-random-name");
+
       if (isSignUpMode) {
-        modalTitle.textContent = "สมัครสมาชิก";
-        modalSubmitBtn.textContent = "ยืนยันสมัครสมาชิก";
-        switchModeBtn.textContent = "มีบัญชีอยู่แล้ว? เข้าสู่ระบบ";
-        btnRandomName.style.display = "block";
+        title.textContent = "สมัครสมาชิก";
+        submitBtn.textContent = "ยืนยันสมัครสมาชิก";
+        switchBtn.textContent = "มีบัญชีอยู่แล้ว? เข้าสู่ระบบ";
+        randomBtn.style.display = "block";
       } else {
-        modalTitle.textContent = "เข้าสู่ระบบ";
-        modalSubmitBtn.textContent = "เข้าสู่ระบบ";
-        switchModeBtn.textContent = "ยังไม่มีบัญชี? สมัครสมาชิก";
-        btnRandomName.style.display = "none";
+        title.textContent = "เข้าสู่ระบบ";
+        submitBtn.textContent = "เข้าสู่ระบบ";
+        switchBtn.textContent = "ยังไม่มีบัญชี? สมัครสมาชิก";
+        randomBtn.style.display = "none";
       }
     });
 
-    authForm.addEventListener("submit", async (e) => {
+    // Auth Form Submit
+    document.getElementById("auth-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const rawInput = usernameInput.value.trim();
+      const rawInput = document.getElementById("auth-username").value.trim();
       const password = document.getElementById("auth-password").value;
 
       try {
@@ -349,13 +454,43 @@
           alert("เข้าสู่ระบบสำเร็จ!");
         }
         authModal.style.display = "none";
-        authForm.reset();
+        document.getElementById("auth-form").reset();
       } catch (error) {
         alert("เกิดข้อผิดพลาด: " + error.message);
       }
     });
 
-    // โหลดสินค้าทั้งหมดจาก Firestore
+    // --- เปลี่ยนรหัสผ่านด้วยตนเอง ---
+    document.getElementById("change-pass-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const oldPass = document.getElementById("old-password").value;
+      const newPass = document.getElementById("new-password").value;
+      const user = auth.currentUser;
+
+      if (!user) return;
+
+      try {
+        // Re-authenticate ยืนยันรหัสเก่าก่อน
+        const credential = EmailAuthProvider.credential(user.email, oldPass);
+        await reauthenticateWithCredential(user, credential);
+        
+        // อัปเดตรหัสผ่านใหม่
+        await updatePassword(user, newPass);
+        alert("เปลี่ยนรหัสผ่านเรียบร้อยแล้ว!");
+        document.getElementById("change-pass-form").reset();
+      } catch (error) {
+        alert("เปลี่ยนรหัสผ่านไม่สำเร็จ: โปรดตรวจสอบรหัสผ่านเดิมอีกครั้ง");
+      }
+    });
+
+    // Logout
+    document.getElementById("logout-btn-full").addEventListener("click", () => {
+      signOut(auth);
+      profileModal.style.display = "none";
+      alert("ออกจากระบบเรียบร้อย");
+    });
+
+    // --- Load Products ---
     async function loadProducts() {
       const listDiv = document.getElementById("list");
       try {
@@ -375,63 +510,52 @@
       }
     }
 
-    // ฟังก์ชันแสดงผลสินค้า (รองรับการเลือกแพ็กเกจ)
     window.renderProducts = function(products) {
       const listDiv = document.getElementById("list");
       if (products.length === 0) {
         listDiv.innerHTML = "<div class='loading'>ไม่พบสินค้าในหมวดหมู่นี้</div>";
         return;
       }
-
       listDiv.innerHTML = "";
-      products.forEach((data, index) => {
-        // ตรวจสอบว่าสินค้ามีตัวเลือกแพ็กเกจหรือไม่ ถ้าไม่มีให้สร้างค่าเริ่มต้น
+      products.forEach((data) => {
         const options = data.options && data.options.length > 0 ? data.options : [{ duration: "1 เดือน", price: data.price || 0 }];
         const defaultPrice = options[0].price;
 
         let optionsHtml = '';
         options.forEach((opt, optIdx) => {
           const activeClass = optIdx === 0 ? 'selected' : '';
-          optionsHtml += `<div class="pkg-chip ${activeClass}" onclick="selectPackage(this, '${data.id}', ${opt.price}, '${opt.duration}')">${opt.duration}</div>`;
+          optionsHtml += `<div class="pkg-chip ${activeClass}" onclick="selectPackage(this, '${data.id}', ${opt.price})">${opt.duration}</div>`;
         });
 
         const lineLink = `https://line.me/R/ti/p/@781wfctk`;
 
         listDiv.innerHTML += `
           <div class="product-card">
-            <div class="product-header">
-              <div class="product-info">
-                <h3>${data.name || 'สินค้าพรีเมียม'}</h3>
-              </div>
+            <div class="product-info">
+              <h3>${data.name || 'สินค้าพรีเมียม'}</h3>
             </div>
             <div class="package-options" id="options-${data.id}">
               ${optionsHtml}
             </div>
             <div class="product-footer">
               <p class="price" id="price-${data.id}">฿${defaultPrice}</p>
-              <a href="${lineLink}" target="_blank" class="buy-btn" id="buy-btn-${data.id}">สั่งซื้อ</a>
+              <a href="${lineLink}" target="_blank" class="buy-btn">สั่งซื้อ</a>
             </div>
           </div>
         `;
       });
     }
 
-    // ฟังก์ชันเปลี่ยนราคาเมื่อคลิกเลือกแพ็กเกจ
-    window.selectPackage = function(element, productId, price, duration) {
-      // เปลี่ยนสถานะปุ่มเลือกในแถวเดียวกัน
+    window.selectPackage = function(element, productId, price) {
       const container = document.getElementById(`options-${productId}`);
       container.querySelectorAll('.pkg-chip').forEach(el => el.classList.remove('selected'));
       element.classList.add('selected');
-
-      // อัปเดตราคาแสดงผล
       document.getElementById(`price-${productId}`).textContent = `฿${price}`;
     }
 
-    // ฟังก์ชันกรองหมวดหมู่
     window.filterCategory = function(category, btnElement) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       btnElement.classList.add('active');
-
       if (category === 'all') {
         renderProducts(allProducts);
       } else {
