@@ -57,7 +57,100 @@
       font-size: 13px;
     }
 
-    /* Modal Form */
+    /* Category Tabs */
+    .categories {
+      max-width: 600px;
+      margin: 15px auto;
+      padding: 0 15px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: white;
+      border: 1px solid #ddd;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: #6366f1;
+      color: white;
+      border-color: #6366f1;
+    }
+
+    /* Product Container */
+    .container {
+      max-width: 600px;
+      margin: 10px auto;
+      padding: 0 15px;
+    }
+    #list { display: grid; gap: 15px; }
+    .product-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .product-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .product-info h3 { margin: 0; font-size: 18px; color: #1f2937; }
+    
+    /* Package Options Selector */
+    .package-options {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .pkg-chip {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .pkg-chip.selected {
+      background: #e0e7ff;
+      border-color: #6366f1;
+      color: #4338ca;
+      font-weight: bold;
+    }
+
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #f3f4f6;
+      padding-top: 10px;
+    }
+    .product-info .price { color: #ef4444; font-weight: bold; font-size: 18px; margin: 0; }
+    .buy-btn {
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .buy-btn:hover { background: #16a34a; }
+    .loading { text-align: center; color: #6b7280; padding: 40px; }
+
+    /* Modal Form (Auth) */
     .modal {
       display: none;
       position: fixed;
@@ -78,108 +171,18 @@
     .modal-content h3 { margin-top: 0; text-align: center; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 13px; margin-bottom: 5px; color: #555; }
-    
-    /* Input With Button Group */
-    .input-group {
-      display: flex;
-      gap: 6px;
-    }
-    .input-group input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 14px;
-    }
+    .input-group { display: flex; gap: 6px; }
+    .input-group input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
     .btn-random {
-      background: #8b5cf6;
-      color: white;
-      border: none;
-      padding: 0 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      white-space: nowrap;
-      font-weight: bold;
-      display: none; /* ซ่อนไว้ก่อน จะโชว์เฉพาะตอนสมัครสมาชิก */
+      background: #8b5cf6; color: white; border: none; padding: 0 12px;
+      border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; display: none;
     }
-    .btn-random:hover { background: #7c3aed; }
-
-    .form-group input[type="password"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    .forgot-pass {
-      text-align: right;
-      font-size: 12px;
-      margin-top: 4px;
-    }
-    .forgot-pass a {
-      color: #6366f1;
-      text-decoration: none;
-    }
-    .forgot-pass a:hover { text-decoration: underline; }
-
-    .btn-submit {
-      width: 100%;
-      background: #22c55e;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 15px;
-    }
-    .switch-mode {
-      text-align: center;
-      margin-top: 15px;
-      font-size: 13px;
-      color: #6366f1;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-    .close-btn {
-      float: right;
-      cursor: pointer;
-      font-size: 18px;
-      color: #aaa;
-    }
-
-    /* Product Cards */
-    .container {
-      max-width: 600px;
-      margin: 15px auto;
-      padding: 0 15px;
-    }
-    #list { display: grid; gap: 15px; }
-    .product-card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .product-info h3 { margin: 0 0 8px 0; font-size: 18px; }
-    .product-info .price { color: #ef4444; font-weight: bold; font-size: 16px; margin: 0; }
-    .buy-btn {
-      background: #22c55e;
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      text-decoration: none;
-      font-size: 14px;
-    }
-    .loading { text-align: center; color: #6b7280; padding: 40px; }
+    .form-group input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+    .forgot-pass { text-align: right; font-size: 12px; margin-top: 4px; }
+    .forgot-pass a { color: #6366f1; text-decoration: none; }
+    .btn-submit { width: 100%; background: #22c55e; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+    .switch-mode { text-align: center; margin-top: 15px; font-size: 13px; color: #6366f1; cursor: pointer; text-decoration: underline; }
+    .close-btn { float: right; cursor: pointer; font-size: 18px; color: #aaa; }
   </style>
 </head>
 <body>
@@ -195,6 +198,13 @@
     <div id="auth-actions"></div>
   </div>
 
+  <!-- หมวดหมู่สินค้า -->
+  <div class="categories">
+    <button class="tab-btn active" onclick="filterCategory('all', this)">ทั้งหมด</button>
+    <button class="tab-btn" onclick="filterCategory('streaming', this)">📺 สตรีมมิ่ง</button>
+    <button class="tab-btn" onclick="filterCategory('utility', this)">🛠️ แอปทั่วไป/เครื่องมือ</button>
+  </div>
+
   <div class="container">
     <div id="list">
       <div class="loading">กำลังโหลดสินค้า...</div>
@@ -207,25 +217,18 @@
       <span class="close-btn" id="modal-close">&times;</span>
       <h3 id="modal-title">เข้าสู่ระบบ</h3>
       <form id="auth-form">
-        
-        <!-- ช่องที่ 1: ชื่อ + ปุ่มสุ่ม (ซ่อนปุ่มสุ่มในหน้าเข้าสู่ระบบ) -->
         <div class="form-group">
-          <label id="username-label">ชื่อผู้ใช้งาน (Username)</label>
+          <label>ชื่อผู้ใช้งาน (Username)</label>
           <div class="input-group">
             <input type="text" id="auth-username" required placeholder="กรอกชื่อผู้ใช้ของคุณ">
-            <button type="button" class="btn-random" id="btn-random-name" title="สุ่มชื่อญี่ปุ่น">🎲 สุ่มชื่อ</button>
+            <button type="button" class="btn-random" id="btn-random-name">🎲 สุ่มชื่อ</button>
           </div>
         </div>
-
-        <!-- ช่องที่ 2: รหัสผ่าน -->
         <div class="form-group">
           <label>รหัสผ่าน</label>
           <input type="password" id="auth-password" required placeholder="รหัสผ่านอย่างน้อย 6 ตัว">
-          <div class="forgot-pass" id="forgot-container">
-            <a href="#" id="forgot-link">ลืมรหัสผ่าน?</a>
-          </div>
+          <div class="forgot-pass"><a href="#" id="forgot-link">ลืมรหัสผ่าน?</a></div>
         </div>
-
         <button type="submit" class="btn-submit" id="modal-submit-btn">เข้าสู่ระบบ</button>
       </form>
       <div class="switch-mode" id="switch-mode-btn">ยังไม่มีบัญชี? สมัครสมาชิก</div>
@@ -257,6 +260,7 @@
     const auth = getAuth(app);
 
     let isSignUpMode = false;
+    let allProducts = []; // เก็บข้อมูลสินค้าทั้งหมดไว้กรองหมวดหมู่
 
     const userStatusEl = document.getElementById("user-status");
     const authActionsEl = document.getElementById("auth-actions");
@@ -269,68 +273,49 @@
     const btnRandomName = document.getElementById("btn-random-name");
     const forgotLink = document.getElementById("forgot-link");
 
-    // รายชื่อไทยสไตล์ญี่ปุ่น 50 ชื่อ
     const japaneseNames = [
       "ฮารุ", "โซระ", "เร็น", "อากิระ", "ไดจิ", "ยูคิ", "ริน", "ไคโตะ", "สึบาสะ", "ริว",
-      "โชตะ", "ฮินะ", "มิคู", "ซากุระ", "เคย์", "ฮิคาริ", "เคนจิ", "นาโอกิ", "คาซึมะ", "โยชิ",
-      "ทาเคชิ", "ชินจิ", "เรียวโกะ", "ยูมิ", "อาโออิ", "มายูมิ", "ฮิเดกิ", "เคนโตะ", "โชชิ", "ทาคาชิ",
-      "ฮารุโตะ", "มินาโตะ", "ริกุ", "โซตะ", "ยูโตะ", "โคทาโร่", "คาโอรุ", "ฮายาโตะ", "ไดสุเกะ", "ชินตารุ",
-      "นานามิ", "อายาเมะ", "คิโยชิ", "โคเฮย์", "เรียวตะ", "โชโกะ", "ยูยะ", "มาซาชิ", "โทโมยะ", "คาซึกิ"
+      "โชตะ", "ฮินะ", "มิคู", "ซากุระ", "เคย์", "ฮิคาริ", "เคนจิ", "นาโอกิ", "คาซึมะ", "โยชิ"
     ];
     
-    // กดสุ่มชื่อ (เอาเฉพาะคำชื่อญี่ปุ่นก่อน เดี๋ยวเลขลำดับจะถูกใส่ให้อัตโนมัติเวลาสมัคร)
     btnRandomName.addEventListener("click", () => {
       const randomName = japaneseNames[Math.floor(Math.random() * japaneseNames.length)];
       usernameInput.value = randomName;
     });
 
-    // ปุ่มลืมรหัสผ่าน
     forgotLink.addEventListener("click", (e) => {
       e.preventDefault();
-      const currentName = usernameInput.value.trim();
-      const lineOA = "https://line.me/R/ti/p/@781wfctk";
-      
-      alert("ระบบจะพาคุณไปยัง LINE ร้านค้าเพื่อแจ้งแอดมินให้ช่วยรีเซ็ตรหัสผ่านครับ");
-      window.open(lineOA, "_blank");
+      window.open("https://line.me/R/ti/p/@781wfctk", "_blank");
     });
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         const username = userDoc.exists() ? userDoc.data().username : "สมาชิก";
-        
         userStatusEl.textContent = `ยินดีต้อนรับ: ${username}`;
         authActionsEl.innerHTML = `<button class="btn-logout" id="logout-btn">ออกจากระบบ</button>`;
         document.getElementById("logout-btn").addEventListener("click", () => signOut(auth));
       } else {
         userStatusEl.textContent = "ยังไม่ได้เข้าสู่ระบบ";
         authActionsEl.innerHTML = `<button class="btn-auth-trigger" id="open-auth-btn">เข้าสู่ระบบ / สมัครสมาชิก</button>`;
-        document.getElementById("open-auth-btn").addEventListener("click", openModal);
+        document.getElementById("open-auth-btn").addEventListener("click", () => authModal.style.display = "flex");
       }
     });
 
-    function openModal() {
-      authModal.style.display = "flex";
-    }
-    document.getElementById("modal-close").addEventListener("click", () => {
-      authModal.style.display = "none";
-    });
+    document.getElementById("modal-close").addEventListener("click", () => authModal.style.display = "none");
 
-    // สลับโหมด เข้าสู่ระบบ / สมัครสมาชิก
     switchModeBtn.addEventListener("click", () => {
       isSignUpMode = !isSignUpMode;
       if (isSignUpMode) {
         modalTitle.textContent = "สมัครสมาชิก";
         modalSubmitBtn.textContent = "ยืนยันสมัครสมาชิก";
         switchModeBtn.textContent = "มีบัญชีอยู่แล้ว? เข้าสู่ระบบ";
-        btnRandomName.style.display = "block"; // แสดงปุ่มสุ่มชื่อตอนสมัครสมาชิก
-        usernameInput.placeholder = "ตั้งชื่อเอง หรือกดสุ่มชื่อได้เลย";
+        btnRandomName.style.display = "block";
       } else {
         modalTitle.textContent = "เข้าสู่ระบบ";
         modalSubmitBtn.textContent = "เข้าสู่ระบบ";
         switchModeBtn.textContent = "ยังไม่มีบัญชี? สมัครสมาชิก";
-        btnRandomName.style.display = "none"; // ซ่อนปุ่มสุ่มชื่อตอนเข้าสู่ระบบ
-        usernameInput.placeholder = "กรอกชื่อผู้ใช้ของคุณ";
+        btnRandomName.style.display = "none";
       }
     });
 
@@ -341,29 +326,21 @@
 
       try {
         if (isSignUpMode) {
-          // 1. เช็กจำนวนผู้ใช้ทั้งหมดในระบบเพื่อนำมาทำเลขลำดับ (Member Number)
           const usersSnap = await getDocs(collection(db, "users"));
-          const memberNo = usersSnap.size + 1; // ลำดับผู้สมัครคนที่เท่าไหร่
-          const formattedNo = String(memberNo).padStart(3, '0'); // จัดรูปแบบเป็น 001, 002, 015
-          
-          // 2. สร้าง Username พร้อมใส่เลขลำดับท้ายชื่อ เช่น ฮารุ_#001
+          const memberNo = usersSnap.size + 1;
+          const formattedNo = String(memberNo).padStart(3, '0');
           const finalUsername = `${rawInput}_#${formattedNo}`;
           const fakeEmail = `${encodeURIComponent(finalUsername).toLowerCase()}@jokjing.shop`;
           
-          // 3. สร้างบัญชีผู้ใช้ใน Firebase Auth
           const cred = await createUserWithEmailAndPassword(auth, fakeEmail, password);
-          
-          // 4. บันทึกข้อมูลสมาชิกลงใน Firestore
           await setDoc(doc(db, "users", cred.user.uid), {
             username: finalUsername,
             memberNo: memberNo,
             role: "customer",
             createdAt: new Date()
           });
-
-          alert(`สมัครสมาชิกสำเร็จ! บัญชีของคุณคือ: ${finalUsername}`);
+          alert(`สมัครสมาชิกสำเร็จ! ชื่อของคุณคือ: ${finalUsername}`);
         } else {
-          // โหมดล็อกอิน
           let loginEmail = rawInput;
           if (!rawInput.includes("@")) {
             loginEmail = `${encodeURIComponent(rawInput).toLowerCase()}@jokjing.shop`;
@@ -378,6 +355,7 @@
       }
     });
 
+    // โหลดสินค้าทั้งหมดจาก Firestore
     async function loadProducts() {
       const listDiv = document.getElementById("list");
       try {
@@ -386,23 +364,79 @@
           listDiv.innerHTML = "<div class='loading'>ยังไม่มีสินค้าในระบบ</div>";
           return;
         }
-        listDiv.innerHTML = "";
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const lineLink = `https://line.me/R/ti/p/@781wfctk`;
-          listDiv.innerHTML += `
-            <div class="product-card">
-              <div class="product-info">
-                <h3>${data.name || 'สินค้าพรีเมียม'}</h3>
-                <p class="price">฿${data.price || '-'}</p>
-              </div>
-              <a href="${lineLink}" target="_blank" class="buy-btn">สั่งซื้อ</a>
-            </div>
-          `;
+        allProducts = [];
+        querySnapshot.forEach((docSnap) => {
+          allProducts.push({ id: docSnap.id, ...docSnap.data() });
         });
+        renderProducts(allProducts);
       } catch (error) {
         console.error(error);
         listDiv.innerHTML = "<div class='loading'>ไม่สามารถโหลดข้อมูลได้</div>";
+      }
+    }
+
+    // ฟังก์ชันแสดงผลสินค้า (รองรับการเลือกแพ็กเกจ)
+    window.renderProducts = function(products) {
+      const listDiv = document.getElementById("list");
+      if (products.length === 0) {
+        listDiv.innerHTML = "<div class='loading'>ไม่พบสินค้าในหมวดหมู่นี้</div>";
+        return;
+      }
+
+      listDiv.innerHTML = "";
+      products.forEach((data, index) => {
+        // ตรวจสอบว่าสินค้ามีตัวเลือกแพ็กเกจหรือไม่ ถ้าไม่มีให้สร้างค่าเริ่มต้น
+        const options = data.options && data.options.length > 0 ? data.options : [{ duration: "1 เดือน", price: data.price || 0 }];
+        const defaultPrice = options[0].price;
+
+        let optionsHtml = '';
+        options.forEach((opt, optIdx) => {
+          const activeClass = optIdx === 0 ? 'selected' : '';
+          optionsHtml += `<div class="pkg-chip ${activeClass}" onclick="selectPackage(this, '${data.id}', ${opt.price}, '${opt.duration}')">${opt.duration}</div>`;
+        });
+
+        const lineLink = `https://line.me/R/ti/p/@781wfctk`;
+
+        listDiv.innerHTML += `
+          <div class="product-card">
+            <div class="product-header">
+              <div class="product-info">
+                <h3>${data.name || 'สินค้าพรีเมียม'}</h3>
+              </div>
+            </div>
+            <div class="package-options" id="options-${data.id}">
+              ${optionsHtml}
+            </div>
+            <div class="product-footer">
+              <p class="price" id="price-${data.id}">฿${defaultPrice}</p>
+              <a href="${lineLink}" target="_blank" class="buy-btn" id="buy-btn-${data.id}">สั่งซื้อ</a>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // ฟังก์ชันเปลี่ยนราคาเมื่อคลิกเลือกแพ็กเกจ
+    window.selectPackage = function(element, productId, price, duration) {
+      // เปลี่ยนสถานะปุ่มเลือกในแถวเดียวกัน
+      const container = document.getElementById(`options-${productId}`);
+      container.querySelectorAll('.pkg-chip').forEach(el => el.classList.remove('selected'));
+      element.classList.add('selected');
+
+      // อัปเดตราคาแสดงผล
+      document.getElementById(`price-${productId}`).textContent = `฿${price}`;
+    }
+
+    // ฟังก์ชันกรองหมวดหมู่
+    window.filterCategory = function(category, btnElement) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      btnElement.classList.add('active');
+
+      if (category === 'all') {
+        renderProducts(allProducts);
+      } else {
+        const filtered = allProducts.filter(p => p.category === category);
+        renderProducts(filtered);
       }
     }
 
