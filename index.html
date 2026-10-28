@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ร้านจกจิ๊ง - บริการดิจิทัลพรีเมียม</title>
+  <title id="page-title">ร้านจกจิ๊ง - บริการดิจิทัลพรีเมียม</title>
   <style>
     :root {
       --bg-color: #f8fafc;
@@ -27,11 +27,13 @@
     }
     .nav-left, .nav-right { display: flex; align-items: center; gap: 12px; }
     .icon-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
+    .brand-container { display: flex; align-items: center; gap: 10px; }
     .brand-logo {
-      width: 35px; height: 35px; border-radius: 50%; background: #fff;
+      width: 38px; height: 38px; border-radius: 50%; background: #fff;
       display: flex; align-items: center; justify-content: center;
-      font-weight: bold; color: #4f46e5; font-size: 16px;
+      font-weight: bold; color: #4f46e5; font-size: 16px; overflow: hidden;
     }
+    .brand-logo img { width: 100%; height: 100%; object-fit: cover; }
     .brand-title { font-size: 18px; font-weight: bold; }
     
     .user-avatar-btn {
@@ -41,7 +43,7 @@
     }
     .user-avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* Warning Banner (สีส้ม-แดง) */
+    /* Warning Banner */
     .warning-banner {
       background: linear-gradient(135deg, #f97316, #ef4444); color: white;
       text-align: center; padding: 10px 15px; font-size: 13px; font-weight: bold;
@@ -59,10 +61,10 @@
     }
     .step-box span { display: block; font-size: 14px; color: #4f46e5; margin-bottom: 3px; }
 
-    /* Admin Dashboard Quick Stats Bar */
+    /* Stats Bar (เอายอดเติมรวมออกตามสั่ง เหลือ 3 ช่อง) */
     .stats-bar {
       max-width: 600px; margin: 0 auto 15px auto; padding: 0 15px;
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;
     }
     .stat-card {
       background: var(--card-bg); border: 1px solid var(--border-color);
@@ -94,23 +96,32 @@
 
     .container { max-width: 600px; margin: 10px auto; padding: 0 15px; }
     #list { display: grid; gap: 15px; }
+    
+    /* Product / App Card */
     .product-card {
       background: var(--card-bg); padding: 20px; border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 12px;
       border: 1px solid var(--border-color); position: relative;
     }
+    .app-header-row { display: flex; align-items: center; gap: 12px; }
+    .app-icon-img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border-color); background: #ddd; }
     .product-info h3 { margin: 0; font-size: 18px; }
+    .app-desc { font-size: 12px; color: #64748b; margin-top: 4px; }
+    
     .package-options { display: flex; gap: 6px; flex-wrap: wrap; }
     .pkg-chip {
       background: var(--bg-color); border: 1px solid var(--border-color);
       padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; color: var(--text-color);
     }
     .pkg-chip.selected { background: #4f46e5; color: white; border-color: #4f46e5; font-weight: bold; }
+    
     .product-footer {
       display: flex; justify-content: space-between; align-items: center;
       border-top: 1px solid var(--border-color); padding-top: 10px;
     }
-    .price { color: #ef4444; font-weight: bold; font-size: 18px; margin: 0; }
+    .price-box .retail-price { color: #ef4444; font-weight: bold; font-size: 18px; margin: 0; }
+    .price-box .agent-price { color: #2563eb; font-size: 12px; font-weight: bold; }
+    
     .buy-btn {
       background: #22c55e; color: white; border: none; padding: 8px 16px;
       border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px;
@@ -141,13 +152,12 @@
     }
     .modal-content {
       background: var(--card-bg); color: var(--text-color); padding: 25px; border-radius: 12px;
-      width: 90%; max-width: 520px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;
+      width: 90%; max-width: 540px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;
     }
     .close-btn { float: right; cursor: pointer; font-size: 20px; color: #aaa; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 13px; margin-bottom: 5px; opacity: 0.8; }
-    .input-group { display: flex; gap: 6px; }
-    .input-group input, .form-group input, .form-group select, .form-group textarea { 
+    .form-group input, .form-group select, .form-group textarea { 
       width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; 
       font-size: 14px; background: var(--bg-color); color: var(--text-color); 
     }
@@ -155,13 +165,13 @@
     .switch-mode { text-align: center; margin-top: 15px; font-size: 13px; color: #4f46e5; cursor: pointer; text-decoration: underline; }
 
     /* Admin Tabs */
-    .admin-tabs { display: flex; gap: 6px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
-    .admin-tab-btn { flex: 1; padding: 6px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
+    .admin-tabs { display: flex; gap: 4px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; flex-wrap: wrap; }
+    .admin-tab-btn { flex: 1; padding: 6px 4px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; text-align: center; }
     .admin-tab-btn.active { background: #4f46e5; color: white; border-color: #4f46e5; }
     .admin-sec { display: none; }
     .admin-sec.active { display: block; }
     .admin-order-card { background: var(--bg-color); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
-    .qr-img { width: 160px; height: 160px; margin: 10px auto; display: block; border: 2px solid var(--border-color); border-radius: 8px; }
+    .qr-img { width: 160px; height: 160px; margin: 10px auto; display: block; border: 2px solid var(--border-color); border-radius: 8px; object-fit: cover; }
   </style>
 </head>
 <body>
@@ -170,40 +180,41 @@
   <div class="navbar">
     <div class="nav-left">
       <button class="icon-btn" id="open-drawer-btn">☰</button>
-      <div class="brand-logo">จก</div>
-      <span class="brand-title">ร้านจกจิ๊ง</span>
+      <div class="brand-container">
+        <div class="brand-logo" id="nav-brand-logo-container">จก</div>
+        <span class="brand-title" id="nav-brand-title">ร้านจกจิ๊ง</span>
+      </div>
     </div>
     <div class="nav-right">
       <div class="user-avatar-btn" id="profile-icon-btn">👤</div>
     </div>
   </div>
 
-  <!-- 🚨 Warning Banner (สีส้ม-แดง) -->
+  <!-- 🚨 Warning Banner -->
   <div class="warning-banner">
     ⚠️ แจ้งเตือน: ซื้อแล้วไม่รับคืนเงินทุกกรณี กรุณาตรวจสอบรายละเอียดให้เรียบร้อยก่อนทำรายการ!
   </div>
 
-  <!-- 3-Step Checkout Guide -->
+  <!-- 3-Step Guide -->
   <div class="steps-container">
     <div class="step-box"><span>1</span>เลือกแอป / สินค้า</div>
     <div class="step-box"><span>2</span>เติมเงิน & แนบสลิป</div>
     <div class="step-box"><span>3</span>รับรหัสทันที</div>
   </div>
 
-  <!-- Real-time Analytics Stats Bar -->
+  <!-- Stats Bar (ไม่มี ยอดเติมรวม) -->
   <div class="stats-bar">
     <div class="stat-card">ผู้ใช้ทั้งหมด<b id="stat-users">0</b></div>
     <div class="stat-card">ขายแล้ว<b id="stat-sold">0</b></div>
     <div class="stat-card">สต็อกเหลือ<b id="stat-stock">0</b></div>
-    <div class="stat-card">ยอดเติมรวม<b id="stat-topup">฿0</b></div>
   </div>
 
   <!-- Drawer Menu -->
   <div class="overlay" id="menu-overlay"></div>
   <div class="drawer" id="side-drawer">
     <div class="drawer-header">
-      <div class="brand-logo" style="width:30px;height:30px;font-size:14px;">จก</div>
-      <span>ร้านจกจิ๊ง Shop</span>
+      <div class="brand-logo" id="drawer-brand-logo" style="width:30px;height:30px;font-size:14px;">จก</div>
+      <span id="drawer-brand-name">ร้านจกจิ๊ง Shop</span>
     </div>
     <ul class="drawer-menu">
       <li><a onclick="closeDrawer()">🏠 หน้าหลัก</a></li>
@@ -251,9 +262,10 @@
       <h3>🛒 ตะกร้าสินค้า & ชำระเงิน</h3>
       <div id="cart-items-list" style="margin-bottom:10px;"></div>
       <h4 style="display:flex; justify-content:space-between;"><span>ยอดรวม:</span><span style="color:#ef4444;" id="cart-total-price">฿0</span></h4>
+      
       <div style="background:var(--bg-color); padding:10px; border-radius:8px; text-align:center; border:1px solid var(--border-color);">
-        <h4 style="margin:0 0 5px 0; font-size:13px;">สแกน QR โอนเงิน</h4>
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=PromptPayJokjing" class="qr-img" alt="QR">
+        <h4 style="margin:0 0 5px 0; font-size:13px;" id="payment-acc-title">ช่องทางโอนเงิน</h4>
+        <img id="payment-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=PromptPayJokjing" class="qr-img" alt="QR">
         <div class="form-group" style="text-align:left; margin-top:8px;">
           <label>แนบสลิปการโอน:</label>
           <input type="file" id="slip-file-input" accept="image/*" required>
@@ -263,16 +275,17 @@
     </div>
   </div>
 
-  <!-- 🛠️ Admin Dashboard Modal -->
+  <!-- 🛠️ Admin Dashboard Modal (อัปเกรดระบบแก้ไขหลังบ้านทั้งหมด) -->
   <div class="modal" id="admin-modal">
-    <div class="modal-content" style="max-width: 540px;">
+    <div class="modal-content" style="max-width: 560px;">
       <span class="close-btn" id="admin-modal-close">&times;</span>
-      <h3>👑 แผงควบคุมเจ้าของร้าน</h3>
+      <h3>👑 แผงควบคุมเจ้าของร้าน (แก้ไขได้ทุกอย่าง)</h3>
       
       <div class="admin-tabs">
         <button class="admin-tab-btn active" onclick="switchAdminTab('orders', this)">🧾 อนุมัติสลิป</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab('add-prod', this)">➕ เพิ่มสินค้า</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab('stock', this)">📦 เติม/เช็คสต็อก</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('add-prod', this)">➕ เพิ่มแอป/สินค้า</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('stock', this)">📦 เติม/แก้วโค้ด</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('shop-set', this)">⚙️ ตั้งค่าร้าน</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('users', this)">👥 สมาชิก</button>
       </div>
 
@@ -281,40 +294,60 @@
         <div id="admin-orders-container"><div class="loading">กำลังโหลดออเดอร์...</div></div>
       </div>
 
-      <!-- Tab 2: เพิ่มสินค้าใหม่ -->
+      <!-- Tab 2: เพิ่มสินค้า/แอป (มีชื่อ, ระยะเวลา, ราคาลูกค้า, ราคาตัวแทน, ไอคอน, รายละเอียด และสถานะ พร้อม/ไม่พร้อมขาย) -->
       <div class="admin-sec" id="admin-sec-add-prod">
         <form id="add-product-form">
-          <div class="form-group"><label>ชื่อสินค้า:</label><input type="text" id="prod-name" required placeholder="เช่น YouTube Premium"></div>
+          <div class="form-group"><label>ชื่อแอป / ชื่อสินค้า:</label><input type="text" id="prod-name" required placeholder="เช่น YouTube Premium"></div>
+          <div class="form-group"><label>ลิงก์รูปไอคอนแอป (URL รูปภาพ):</label><input type="text" id="prod-icon" placeholder="https://..."></div>
+          <div class="form-group"><label>รายละเอียดใต้ไอคอน:</label><textarea id="prod-desc" rows="2" placeholder="รายละเอียดหรือเงื่อนไขแอปนี้"></textarea></div>
           <div class="form-group"><label>ระยะเวลาแพ็กเกจ:</label><input type="text" id="prod-dur" required placeholder="เช่น 1 เดือน"></div>
-          <div class="form-group"><label>ราคา (บาท):</label><input type="number" id="prod-price" required placeholder="เช่น 35"></div>
-          <button type="submit" class="btn-submit">✨ บันทึกสินค้าใหม่</button>
+          <div class="form-group"><label>ราคาสำหรับลูกค้าทั่วไป (บาท):</label><input type="number" id="prod-price" required placeholder="เช่น 35"></div>
+          <div class="form-group"><label>ราคาสำหรับตัวแทน (บาท):</label><input type="number" id="prod-agent-price" required placeholder="เช่น 25"></div>
+          <div class="form-group">
+            <label>สถานะการขาย:</label>
+            <select id="prod-status">
+              <option value="active">🟢 พร้อมขาย</option>
+              <option value="inactive">🔴 ไม่พร้อมขาย (ซ่อน)</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-submit">✨ บันทึกเพิ่มแอปใหม่</button>
         </form>
       </div>
 
-      <!-- Tab 3: จัดการ & ตรวจสอบสต็อกโค้ด (อัปเดตให้เห็นชื่อ/รหัส/ลำดับปัจจุบัน) -->
+      <!-- Tab 3: จัดการ & แก้ไขรหัสในสต็อก -->
       <div class="admin-sec" id="admin-sec-stock">
-        <form id="add-stock-form">
-          <div class="form-group">
-            <label>เลือกสินค้า:</label>
-            <select id="stock-product-select" required onchange="renderStockDetails()"></select>
-          </div>
-          <div id="stock-status-preview" style="background:var(--bg-color); border:1px solid var(--border-color); padding:10px; border-radius:6px; margin-bottom:10px; font-size:12px;">
-            <!-- แสดงข้อมูลจำนวนและลำดับสต็อกปัจจุบัน -->
-          </div>
-          <div class="form-group">
-            <label>เพิ่มรหัส / โค้ดสินค้าใหม่ (ใส่ทีละบรรทัด):</label>
-            <textarea id="stock-codes-input" rows="4" placeholder="user:pass หรือโค้ดใหม่ บรรทัดละ 1 ชุด"></textarea>
-          </div>
-          <button type="submit" class="btn-submit">📥 บันทึกเพิ่มเข้าคลังสต็อก</button>
-        </form>
-        <hr style="margin:15px 0; border:0; border-top:1px solid var(--border-color);">
-        <h4 style="font-size:13px; margin-bottom:5px;">📋 รายการรหัสที่รอส่งในสต็อกปัจจุบัน:</h4>
-        <div id="stock-codes-list-box" style="background:var(--bg-color); border:1px solid var(--border-color); padding:8px; border-radius:6px; max-height:140px; overflow-y:auto; font-size:11px; font-family:monospace;">
-          <!-- แสดงรายการรหัสทั้งหมดที่มีอยู่ -->
+        <div class="form-group">
+          <label>เลือกแอป / สินค้า:</label>
+          <select id="stock-product-select" onchange="renderStockDetails()"></select>
         </div>
+        <div id="stock-status-preview" style="background:var(--bg-color); border:1px solid var(--border-color); padding:10px; border-radius:6px; margin-bottom:10px; font-size:12px;"></div>
+        
+        <form id="add-stock-form" style="margin-bottom:15px;">
+          <div class="form-group">
+            <label>เติมรหัส / โค้ดเพิ่ม (ใส่ทีละบรรทัด):</label>
+            <textarea id="stock-codes-input" rows="3" placeholder="user:pass บรรทัดละ 1 ชุด"></textarea>
+          </div>
+          <button type="submit" class="btn-submit">📥 เติมเข้าคลังสต็อก</button>
+        </form>
+
+        <h4 style="font-size:13px; margin-bottom:5px;">📋 รายการรหัสในสต็อก (สามารถแก้ไขแต่ละรหัสได้):</h4>
+        <div id="editable-stock-list" style="background:var(--bg-color); border:1px solid var(--border-color); padding:8px; border-radius:6px; max-height:160px; overflow-y:auto; font-size:11px;"></div>
       </div>
 
-      <!-- Tab 4: รายชื่อสมาชิก -->
+      <!-- Tab 4: ตั้งค่าหลังบ้านร้านค้า (ชื่อร้าน, โลโก้, บัญชี, คิวอาร์โค้ด) -->
+      <div class="admin-sec" id="admin-sec-shop-set">
+        <form id="shop-settings-form">
+          <div class="form-group"><label>ชื่อร้านค้า:</label><input type="text" id="set-shop-name" required placeholder="ร้านจกจิ๊ง"></div>
+          <div class="form-group"><label>ลิงก์รูปโลโก้ร้าน (URL):</label><input type="text" id="set-shop-logo" placeholder="https://..."></div>
+          <hr style="margin:10px 0; border:0; border-top:1px solid var(--border-color);">
+          <div class="form-group"><label>ชื่อบัญชีรับเงิน:</label><input type="text" id="set-acc-name" placeholder="ชื่อ นามสกุล"></div>
+          <div class="form-group"><label>เลขที่บัญชี / พร้อมเพย์:</label><input type="text" id="set-acc-num" placeholder="0123456789"></div>
+          <div class="form-group"><label>ลิงก์รูป QR Code พร้อมเพย์ (URL):</label><input type="text" id="set-qr-url" placeholder="https://..."></div>
+          <button type="submit" class="btn-submit">💾 บันทึกการตั้งค่าร้าน</button>
+        </form>
+      </div>
+
+      <!-- Tab 5: รายชื่อสมาชิก -->
       <div class="admin-sec" id="admin-sec-users">
         <div id="admin-users-container"><div class="loading">กำลังโหลดสมาชิก...</div></div>
       </div>
@@ -343,6 +376,7 @@
     let isSignUpMode = false;
     let allProductsData = [];
     let cart = [];
+    let shopConfig = { name: "ร้านจกจิ๊ง", logo: "", accName: "จิรภัทร", accNum: "0123456789", qrUrl: "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=PromptPayJokjing" };
 
     const authModal = document.getElementById("auth-modal");
     const cartModal = document.getElementById("cart-modal");
@@ -354,7 +388,7 @@
     window.closeDrawer = () => { sideDrawer.classList.remove("open"); menuOverlay.classList.remove("open"); };
     menuOverlay.addEventListener("click", closeDrawer);
 
-    document.getElementById("profile-icon-btn").addEventListener("click", () => auth.currentUser ? alert(`เข้าสู่ระบบอยู่แล้ว: ${currentUserData?.username}`) : authModal.style.display = "flex");
+    document.getElementById("profile-icon-btn").addEventListener("click", () => auth.currentUser ? alert(`เข้าสู่ระบบอยู่แล้ว: ${currentUserData?.username} (${currentUserData?.role})`) : authModal.style.display = "flex");
     document.getElementById("floating-cart-btn").addEventListener("click", openCartModal);
 
     document.getElementById("auth-modal-close").addEventListener("click", () => authModal.style.display = "none");
@@ -377,11 +411,57 @@
         document.getElementById("profile-icon-btn").textContent = "👤";
         document.getElementById("admin-menu-link").style.display = "none";
       }
+      loadShopConfig();
       loadProducts();
       updateAnalyticsStats();
     });
 
-    // Real-time Analytics & Stats Update
+    // โหลดการตั้งค่าร้านค้าจาก Firestore
+    async function loadShopConfig() {
+      try {
+        const docSnap = await getDoc(doc(db, "settings", "shopConfig"));
+        if (docSnap.exists()) {
+          shopConfig = docSnap.data();
+        }
+        document.getElementById("page-title").textContent = shopConfig.name;
+        document.getElementById("nav-brand-title").textContent = shopConfig.name;
+        document.getElementById("drawer-brand-name").textContent = shopConfig.name + " Shop";
+        
+        const logoContainer = document.getElementById("nav-brand-logo-container");
+        const drawerLogo = document.getElementById("drawer-brand-logo");
+        if (shopConfig.logo) {
+          logoContainer.innerHTML = `<img src="${shopConfig.logo}" alt="Logo">`;
+          drawerLogo.innerHTML = `<img src="${shopConfig.logo}" alt="Logo">`;
+        } else {
+          logoContainer.textContent = shopConfig.name.charAt(0);
+          drawerLogo.textContent = shopConfig.name.charAt(0);
+        }
+
+        document.getElementById("set-shop-name").value = shopConfig.name;
+        document.getElementById("set-shop-logo").value = shopConfig.logo || "";
+        document.getElementById("set-acc-name").value = shopConfig.accName || "";
+        document.getElementById("set-acc-num").value = shopConfig.accNum || "";
+        document.getElementById("set-qr-url").value = shopConfig.qrUrl || "";
+        document.getElementById("payment-acc-title").textContent = `โอนเข้าบัญชี: ${shopConfig.accName || '-'} (${shopConfig.accNum || '-'})`;
+        if (shopConfig.qrUrl) document.getElementById("payment-qr-img").src = shopConfig.qrUrl;
+      } catch (e) { console.error(e); }
+    }
+
+    // บันทึกการตั้งค่าร้านค้า
+    document.getElementById("shop-settings-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      shopConfig.name = document.getElementById("set-shop-name").value.trim();
+      shopConfig.logo = document.getElementById("set-shop-logo").value.trim();
+      shopConfig.accName = document.getElementById("set-acc-name").value.trim();
+      shopConfig.accNum = document.getElementById("set-acc-num").value.trim();
+      shopConfig.qrUrl = document.getElementById("set-qr-url").value.trim();
+
+      await setDoc(doc(db, "settings", "shopConfig"), shopConfig);
+      alert("บันทึกการตั้งค่าร้านสำเร็จ!");
+      loadShopConfig();
+    });
+
+    // Stats (ไม่มี ยอดเติมรวม)
     async function updateAnalyticsStats() {
       try {
         const usersSnap = await getDocs(collection(db, "users"));
@@ -389,32 +469,24 @@
         const prodsSnap = await getDocs(collection(db, "products"));
 
         let totalSold = 0;
-        let totalTopup = 0;
         let totalStock = 0;
 
         ordersSnap.forEach(d => {
           const o = d.data();
-          if (o.status === 'approved') {
-            totalTopup += o.totalAmount || 0;
-            totalSold += o.items?.length || 0;
-          }
+          if (o.status === 'approved') totalSold += o.items?.length || 0;
         });
 
         prodsSnap.forEach(d => {
           const p = d.data();
-          if (p.stockCodes && Array.isArray(p.stockCodes)) {
-            totalStock += p.stockCodes.length;
-          }
+          if (p.stockCodes && Array.isArray(p.stockCodes)) totalStock += p.stockCodes.length;
         });
 
         document.getElementById("stat-users").textContent = usersSnap.size;
         document.getElementById("stat-sold").textContent = totalSold;
         document.getElementById("stat-stock").textContent = totalStock;
-        document.getElementById("stat-topup").textContent = `฿${totalTopup}`;
       } catch (e) { console.error(e); }
     }
 
-    // Admin Dashboard Tabs
     window.openAdminModal = function() {
       if (!currentUserData || currentUserData.role !== "admin") {
         alert("เฉพาะเจ้าของร้านเท่านั้น");
@@ -454,7 +526,7 @@
             <p><a href="${order.slipUrl}" target="_blank" style="color:#4f46e5; font-weight:bold;">🔍 ตรวจสอบสลิป</a></p>
             ${order.status === 'pending' ? `
               <button onclick="approveOrder('${orderId}')" style="background:#22c55e; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold;">อนุมัติ & จ่ายโค้ดอัตโนมัติ</button>
-            ` : `<p style="color:green; font-weight:bold;">ส่งรหัสเรียบร้อยแล้ว: ${order.deliveredCode || '-'}</p>`}
+            ` : `<p style="color:green; font-weight:bold;">ส่งรหัสแล้ว: ${order.deliveredCode || '-'}</p>`}
           </div>`;
       });
     }
@@ -469,41 +541,44 @@
         const prodRef = doc(db, "products", item.productId);
         const prodSnap = await getDoc(prodRef);
         
-        let assignedCode = "ได้รับสิทธิ์สำเร็จติดต่อแอดมินรับข้อมูล";
+        let assignedCode = "ได้รับสิทธิ์สำเร็จ";
         if (prodSnap.exists()) {
           const prodData = prodSnap.data();
           let codes = prodData.stockCodes || [];
           if (codes.length > 0) {
             assignedCode = codes.shift(); 
             await updateDoc(prodRef, { stockCodes: codes });
-          } else {
-            alert("⚠️ เตือน: สต็อกโค้ดในระบบหมด แต่จะอนุมัติออเดอร์ให้");
           }
         }
 
         await updateDoc(orderRef, { status: "approved", deliveredCode: assignedCode });
-        alert(`อนุมัติสำเร็จ! รหัสที่ส่งให้ลูกค้าคือ: ${assignedCode}`);
+        alert(`อนุมัติสำเร็จ! รหัสที่ส่งให้ลูกค้า: ${assignedCode}`);
         loadAdminOrders();
         updateAnalyticsStats();
+        loadProducts();
       } catch (err) { alert("เกิดข้อผิดพลาด: " + err.message); }
     };
 
+    // เพิ่มแอป/สินค้าใหม่ พร้อมราคาตัวแทนและสถานะ
     document.getElementById("add-product-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("prod-name").value.trim();
+      const icon = document.getElementById("prod-icon").value.trim();
+      const description = document.getElementById("prod-desc").value.trim();
       const duration = document.getElementById("prod-dur").value.trim();
       const price = Number(document.getElementById("prod-price").value);
+      const agentPrice = Number(document.getElementById("prod-agent-price").value);
+      const status = document.getElementById("prod-status").value;
 
       await addDoc(collection(db, "products"), {
-        name, options: [{ duration, price }], stockCodes: [], createdAt: new Date()
+        name, icon, description, status, options: [{ duration, price, agentPrice }], stockCodes: [], createdAt: new Date()
       });
-      alert("เพิ่มสินค้าสำเร็จ!");
+      alert("เพิ่มแอป/สินค้าสำเร็จ!");
       document.getElementById("add-product-form").reset();
       loadProducts();
       updateAnalyticsStats();
     });
 
-    // โหลดรายชื่อสินค้าในหน้าจัดการสต็อก
     async function loadStockProductDropdown() {
       const select = document.getElementById("stock-product-select");
       select.innerHTML = "";
@@ -516,30 +591,57 @@
       renderStockDetails();
     }
 
-    // แสดงรายละเอียด/รายการรหัสในสต็อกปัจจุบันของสินค้าที่เลือก
+    // แสดงและแก้ไขรหัสในสต็อกได้ทีละตัว
     window.renderStockDetails = function() {
       const selectedId = document.getElementById("stock-product-select").value;
       const product = allProductsData.find(p => p.id === selectedId);
       const previewBox = document.getElementById("stock-status-preview");
-      const listBox = document.getElementById("stock-codes-list-box");
+      const listBox = document.getElementById("editable-stock-list");
 
-      if (!product) {
-        previewBox.innerHTML = "ไม่พบข้อมูลสินค้า";
-        listBox.innerHTML = "-";
-        return;
-      }
+      if (!product) { previewBox.innerHTML = "ไม่พบข้อมูล"; listBox.innerHTML = "-"; return; }
 
       const codes = product.stockCodes || [];
-      previewBox.innerHTML = `<strong>📦 สินค้า:</strong> ${product.name}<br><strong>📊 คงเหลือในสต็อกปัจจุบัน:</strong> <span style="color:green; font-weight:bold;">${codes.length} รายการ</span> (พร้อมหยิบจ่ายลำดับแรกสุดทันที)`;
+      previewBox.innerHTML = `<strong>📦 แอป:</strong> ${product.name} | <strong>คงเหลือ:</strong> <span style="color:green; font-weight:bold;">${codes.length} ชุด</span>`;
       
       if (codes.length === 0) {
-        listBox.innerHTML = "<span style='color:red;'>⚠️ ยังไม่มีรหัสในสต็อก กรุณาเติมด่วน!</span>";
+        listBox.innerHTML = "<span style='color:red;'>⚠️ ไม่มีรหัสในสต็อก</span>";
       } else {
         let htmlStr = "";
         codes.forEach((c, index) => {
-          htmlStr += `[ลำดับที่ ${index + 1}] ${c}<br>`;
+          htmlStr += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; border-bottom:1px dashed #ddd; padding-bottom:3px;">
+            <span>[#${index + 1}] <input type="text" id="code-val-${index}" value="${c}" style="padding:2px 6px; font-size:11px; width:220px;"></span>
+            <span>
+              <button onclick="updateSingleCode('${product.id}', ${index})" style="background:#2563eb; color:white; border:none; padding:2px 6px; border-radius:3px; cursor:pointer;">บันทึก</button>
+              <button onclick="deleteSingleCode('${product.id}', ${index})" style="background:#ef4444; color:white; border:none; padding:2px 6px; border-radius:3px; cursor:pointer;">ลบ</button>
+            </span>
+          </div>`;
         });
         listBox.innerHTML = htmlStr;
+      }
+    };
+
+    // ฟังก์ชันแก้ไขรหัสเฉพาะตัวในสต็อก
+    window.updateSingleCode = async function(prodId, index) {
+      const newVal = document.getElementById(`code-val-${index}`).value.trim();
+      const product = allProductsData.find(p => p.id === prodId);
+      if (product && product.stockCodes) {
+        product.stockCodes[index] = newVal;
+        await updateDoc(doc(db, "products", prodId), { stockCodes: product.stockCodes });
+        alert("อัปเดตรหัสสำเร็จ!");
+        loadStockProductDropdown();
+      }
+    };
+
+    // ฟังก์ชันลบรหัสเฉพาะตัวในสต็อก
+    window.deleteSingleCode = async function(prodId, index) {
+      if (!confirm("ต้องการลบรหัสนี้ออกจากสต็อก?")) return;
+      const product = allProductsData.find(p => p.id === prodId);
+      if (product && product.stockCodes) {
+        product.stockCodes.splice(index, 1);
+        await updateDoc(doc(db, "products", prodId), { stockCodes: product.stockCodes });
+        alert("ลบรหัสสำเร็จ!");
+        loadStockProductDropdown();
+        updateAnalyticsStats();
       }
     };
 
@@ -552,7 +654,7 @@
 
       const prodRef = doc(db, "products", prodId);
       await updateDoc(prodRef, { stockCodes: arrayUnion(...codesArray) });
-      alert(`เติมสต็อก ${codesArray.length} รายการสำเร็จ!`);
+      alert(`เติมสต็อกสำเร็จ ${codesArray.length} รายการ!`);
       document.getElementById("stock-codes-input").value = "";
       loadStockProductDropdown();
       updateAnalyticsStats();
@@ -565,9 +667,20 @@
       container.innerHTML = "";
       snapshot.forEach(docSnap => {
         const u = docSnap.data();
-        container.innerHTML += `<div style="background:var(--bg-color); border:1px solid var(--border-color); padding:8px; border-radius:6px; margin-bottom:6px; font-size:12px;"><strong>${u.username}</strong> | สิทธิ์: ${u.role}</div>`;
+        const userId = docSnap.id;
+        container.innerHTML += `<div style="background:var(--bg-color); border:1px solid var(--border-color); padding:8px; border-radius:6px; margin-bottom:6px; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span><strong>${u.username}</strong> | สิทธิ์: <b>${u.role}</b></span>
+          ${u.role !== 'admin' ? `<button onclick="toggleAgentRole('${userId}', '${u.role}')" style="background:#4f46e5; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">สลับสิทธิ์ตัวแทน</button>` : ''}
+        </div>`;
       });
     }
+
+    window.toggleAgentRole = async function(userId, currentRole) {
+      const newRole = currentRole === 'agent' ? 'customer' : 'agent';
+      await updateDoc(doc(db, "users", userId), { role: newRole });
+      alert("เปลี่ยนสิทธิ์เรียบร้อย!");
+      loadAdminUsers();
+    };
 
     async function loadProducts() {
       const listDiv = document.getElementById("list");
@@ -584,26 +697,44 @@
       const listDiv = document.getElementById("list");
       listDiv.innerHTML = "";
       const isAdmin = currentUserData && currentUserData.role === "admin";
+      const isAgent = currentUserData && currentUserData.role === "agent";
 
       products.forEach(data => {
-        const opt = data.options?.[0] || { duration: "1 เดือน", price: 0 };
+        const opt = data.options?.[0] || { duration: "1 เดือน", price: 0, agentPrice: 0 };
         const stockCount = data.stockCodes?.length || 0;
+        const isOutOfStock = stockCount <= 0;
+        const statusActive = data.status !== 'inactive';
+
+        // ถ้าไม่ใช่แอดมิน และสินค้าไม่พร้อมขาย หรือหมดสต็อก ให้จัดการแสดงผลตามเหมาะสม
+        if (!statusActive && !isAdmin) return;
+
+        const displayPrice = isAgent ? (opt.agentPrice || opt.price) : opt.price;
 
         listDiv.innerHTML += `
-          <div class="product-card">
-            ${isAdmin ? `<button class="delete-prod-btn" onclick="deleteProduct('${data.id}')">🗑️ ลบ</button>` : ''}
-            <div class="product-info"><h3>${data.name}</h3><span style="font-size:12px; color:green;">📦 สต็อกพร้อมส่ง: ${stockCount} ชุด</span></div>
+          <div class="product-card" style="${!statusActive ? 'opacity:0.6;' : ''}">
+            ${isAdmin ? `<button class="delete-prod-btn" onclick="deleteProduct('${data.id}')">🗑️ ลบแอป</button>` : ''}
+            <div class="app-header-row">
+              <img src="${data.icon || 'https://via.placeholder.com/50'}" class="app-icon-img" alt="Icon">
+              <div class="product-info">
+                <h3>${data.name} ${!statusActive ? '(ซ่อนอยู่)' : ''}</h3>
+                <div class="app-desc">${data.description || 'ไม่มีรายละเอียดเพิ่มเติม'}</div>
+                <span style="font-size:11px; color:${isOutOfStock ? 'red' : 'green'}; font-weight:bold;">📦 สต็อก: ${isOutOfStock ? 'สินค้าหมด' : stockCount + ' ชุด'}</span>
+              </div>
+            </div>
             <div class="package-options"><div class="pkg-chip selected">${opt.duration}</div></div>
             <div class="product-footer">
-              <p class="price">฿${opt.price}</p>
-              <button class="buy-btn" onclick="addToCart('${data.id}', '${data.name}', ${opt.price}, '${opt.duration}')" ${stockCount <= 0 ? 'disabled style="background:gray;"' : ''}>${stockCount > 0 ? '🛒 ใส่ตะกร้า' : 'สินค้าหมด'}</button>
+              <div class="price-box">
+                <p class="retail-price">฿${displayPrice}</p>
+                ${isAgent ? `<span class="agent-price">ราคาตัวแทน</span>` : ''}
+              </div>
+              <button class="buy-btn" onclick="addToCart('${data.id}', '${data.name}', ${displayPrice}, '${opt.duration}')" ${isOutOfStock || !statusActive ? 'disabled style="background:gray;"' : ''}>${isOutOfStock ? 'สินค้าหมด' : '🛒 ใส่ตะกร้า'}</button>
             </div>
           </div>`;
       });
     };
 
     window.deleteProduct = async function(id) {
-      if (confirm("ลบสินค้านี้?")) {
+      if (confirm("ลบแอป/สินค้านี้ทั้งหมด?")) {
         await deleteDoc(doc(db, "products", id));
         loadProducts();
         updateAnalyticsStats();
