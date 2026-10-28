@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="page-title">ร้านจกจิ๊ง - บริการดิจิทัลพรีเมียม</title>
+  <!-- Cropper.js CSS สำหรับระบบครอปรูปตามกรอบ -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
   <style>
     :root {
       --bg-color: #f8fafc;
@@ -36,7 +38,7 @@
     .brand-logo img { width: 100%; height: 100%; object-fit: cover; }
     .brand-title { font-size: 18px; font-weight: bold; }
 
-    /* 📌 ไอคอนยูสเซอร์ลอยตรงกลางขอบล่างของจอ */
+    /* ไอคอนยูสเซอร์ลอยตรงกลางขอบล่างของจอ */
     .floating-profile-btn {
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
       width: 58px; height: 58px; border-radius: 50%;
@@ -89,7 +91,6 @@
       font-size: 14px; background: var(--bg-color); color: var(--text-color); 
     }
     
-    /* ไอคอนลืมรหัสผ่านเล็กๆ ใต้ช่องรหัสผ่าน */
     .forgot-link-sm {
       display: inline-flex; align-items: center; gap: 3px;
       font-size: 11px; color: #64748b; margin-top: 4px; cursor: pointer; text-decoration: underline;
@@ -99,7 +100,6 @@
     .btn-danger { width: 100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 13px; }
     .switch-mode { text-align: center; margin-top: 15px; font-size: 13px; color: #4f46e5; cursor: pointer; text-decoration: underline; }
 
-    /* Role Badge */
     .role-badge {
       display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-bottom: 12px;
     }
@@ -107,14 +107,12 @@
     .role-agent { background: #dbeafe; color: #2563eb; }
     .role-customer { background: #f1f5f9; color: #475569; }
 
-    /* Eye Icon for Password Toggle */
     .pass-input-wrapper { position: relative; display: flex; align-items: center; }
     .pass-input-wrapper input { padding-right: 35px; }
     .toggle-eye-btn {
       position: absolute; right: 10px; background: none; border: none; cursor: pointer; font-size: 16px; opacity: 0.6;
     }
 
-    /* Cropper / Avatar Crop Preview Box */
     .avatar-crop-box {
       width: 90px; height: 90px; border-radius: 50%; border: 2px dashed #4f46e5;
       margin: 10px auto; overflow: hidden; display: flex; justify-content: center; align-items: center;
@@ -122,7 +120,10 @@
     }
     .avatar-crop-box img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* Collapsible Box */
+    /* หน้าต่างครอปรูป */
+    #cropper-container { width: 100%; max-height: 350px; overflow: hidden; margin-bottom: 15px; }
+    #image-to-crop { max-width: 100%; display: block; }
+
     .collapsible-btn {
       width: 100%; background: var(--bg-color); border: 1px solid var(--border-color);
       padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: left;
@@ -163,12 +164,12 @@
     <p style="text-align:center; color:#64748b; font-size:14px;">กดที่ไอคอนผู้ใช้ด้านล่างสุดเพื่อเข้าสู่ระบบ หรือจัดการโปรไฟล์ของคุณ</p>
   </div>
 
-  <!-- 📌 ไอคอนยูสเซอร์ลอยอยู่ตรงกลางขอบล่างของจอ -->
+  <!-- ไอคอนยูสเซอร์ลอยอยู่ตรงกลางขอบล่างของจอ -->
   <div class="floating-profile-btn" id="floating-profile-btn">
     👤
   </div>
 
-  <!-- 🔐 Modal Auth: เข้าสู่ระบบ / สมัครสมาชิก -->
+  <!-- Modal Auth: เข้าสู่ระบบ / สมัครสมาชิก -->
   <div class="modal" id="auth-modal">
     <div class="modal-content">
       <span class="close-btn" id="auth-modal-close">&times;</span>
@@ -181,7 +182,6 @@
         <div class="form-group" style="margin-bottom:6px;">
           <label>รหัสผ่าน (อย่างน้อย 4 ตัวอักษร)</label>
           <input type="password" id="auth-password" required minlength="4" placeholder="กรอกรหัสผ่าน 4 ตัวขึ้นไป">
-          <!-- 🔑 ไอคอนลืมรหัสผ่านเล็กๆ ใต้ช่องรหัสผ่าน -->
           <div>
             <span class="forgot-link-sm" id="forgot-pass-btn" onclick="forgotPassword()">🔑 ลืมรหัสผ่าน?</span>
           </div>
@@ -192,15 +192,15 @@
     </div>
   </div>
 
-  <!-- 👤 Modal Profile: จัดการโปรไฟล์ส่วนตัวเรียงตามสั่ง 7 ข้อ -->
+  <!-- Modal Profile: จัดการโปรไฟล์ส่วนตัว -->
   <div class="modal" id="profile-modal">
     <div class="modal-content">
       <span class="close-btn" onclick="document.getElementById('profile-modal').style.display='none'">&times;</span>
       <h3 style="margin-top:0;">👤 โปรไฟล์ส่วนตัว</h3>
 
-      <!-- 4. รูปโปรไฟล์ (เลือกรูปจากเครื่อง + ครอปพรีวิววงกลม) -->
+      <!-- 4. รูปโปรไฟล์ -->
       <div class="form-group" style="text-align:center;">
-        <label>รูปโปรไฟล์ (คลิกวงกลมเพื่อเลือกรูป/ครอป)</label>
+        <label>รูปโปรไฟล์</label>
         <div class="avatar-crop-box" onclick="document.getElementById('edit-avatar-file').click()">
           <img id="avatar-preview-img" src="" alt="Avatar" style="display:none;">
           <span id="avatar-placeholder-txt" style="font-size:30px;">📷</span>
@@ -208,18 +208,18 @@
         <input type="file" id="edit-avatar-file" accept="image/*" style="display:none;">
       </div>
 
-      <!-- 3. สิทธิ์ของยูส (ลูกค้า / ตัวแทน / แอดมิน) -->
+      <!-- 3. สิทธิ์ของยูส -->
       <div style="text-align:center;">
         <div id="user-role-badge-container"></div>
       </div>
 
-      <!-- 1. ชื่อผู้ใช้ (เปลี่ยนชื่อได้ บันทึกอัตโนมัติ) -->
+      <!-- 1. ชื่อผู้ใช้ -->
       <div class="form-group">
-        <label>1. ชื่อผู้ใช้ (พิมพ์เพื่อเปลี่ยนชื่อได้):</label>
+        <label>1. ชื่อผู้ใช้ (เปลี่ยนชื่อได้):</label>
         <input type="text" id="profile-username-input" minlength="5">
       </div>
 
-      <!-- 2. รหัสผ่าน (ปิดไว้ มีไอคอนรูปตากดเปิดดูได้) -->
+      <!-- 2. รหัสผ่าน -->
       <div class="form-group">
         <label>2. รหัสผ่านปัจจุบัน:</label>
         <div class="pass-input-wrapper">
@@ -228,9 +228,9 @@
         </div>
       </div>
 
-      <!-- 5. เปลี่ยนรหัสผ่าน 4 ตัว (กดเข้าไปอีกทีนึง) -->
+      <!-- 5. เปลี่ยนรหัสผ่าน 4 ตัว (เอาเลข 5 ออกแล้ว) -->
       <button class="collapsible-btn" onclick="togglePassCollapsible()">
-        <span>5. 🔑 เปลี่ยนรหัสผ่าน 4 ตัว</span>
+        <span>🔑 เปลี่ยนรหัสผ่าน 4 ตัว</span>
         <span id="pass-arrow">▼</span>
       </button>
       <div class="collapsible-content" id="pass-collapsible-box">
@@ -251,9 +251,23 @@
     </div>
   </div>
 
+  <!-- Modal สำหรับปรับเลื่อนครอปรูปภาพตามต้องการ -->
+  <div class="modal" id="cropper-modal" style="z-index: 120;">
+    <div class="modal-content" style="text-align:center;">
+      <h3 style="margin-top:0;">ปรับแต่งเลือกพื้นที่รูปภาพ</h3>
+      <div id="cropper-container">
+        <img id="image-to-crop" src="" alt="Source">
+      </div>
+      <button type="button" class="btn-submit" id="crop-confirm-btn" style="background:#22c55e;">✓ ยืนยันการครอปรูป</button>
+      <button type="button" class="btn-danger" style="margin-top:8px;" onclick="document.getElementById('cropper-modal').style.display='none'">ยกเลิก</button>
+    </div>
+  </div>
+
+  <!-- โหลดสคริปต์ Cropper.js สำหรับระบบครอปรูป -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -272,10 +286,12 @@
     let currentUserData = null;
     let isSignUpMode = false;
     let autoSaveTimer = null;
-    let currentRawPassword = ""; // เก็บรหัสผ่านจำลองไว้แสดงตอนกดเปิดตา
+    let currentRawPassword = "";
+    let cropper = null;
 
     const authModal = document.getElementById("auth-modal");
     const profileModal = document.getElementById("profile-modal");
+    const cropperModal = document.getElementById("cropper-modal");
     const sideDrawer = document.getElementById("side-drawer");
     const menuOverlay = document.getElementById("menu-overlay");
 
@@ -285,7 +301,6 @@
 
     document.getElementById("auth-modal-close").addEventListener("click", () => authModal.style.display = "none");
 
-    // 📌 กดปุ่มไอคอนลอยตรงกลางล่าง
     document.getElementById("floating-profile-btn").addEventListener("click", () => {
       if (auth.currentUser) {
         openProfileModal();
@@ -294,7 +309,6 @@
       }
     });
 
-    // ฟังสถานะผู้ใช้
     onAuthStateChanged(auth, async (user) => {
       const floatBtn = document.getElementById("floating-profile-btn");
       if (user) {
@@ -317,60 +331,55 @@
       }
     });
 
-    // 📷 ระบบแปลงรูปพร้อมครอปสัดส่วน (Cropper Canvas Preview)
-    function cropAndCompressImage(file) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          const size = Math.min(img.width, img.height);
-          canvas.width = 300;
-          canvas.height = 300;
-          const ctx = canvas.getContext("2d");
-
-          // ครอปให้เป็นจัตุรัสกลางภาพ (Center Crop)
-          const startX = (img.width - size) / 2;
-          const startY = (img.height - size) / 2;
-          ctx.drawImage(img, startX, startY, size, size, 0, 0, 300, 300);
-
-          resolve(canvas.toDataURL("image/jpeg", 0.8));
-        };
-        img.onerror = reject;
-        img.src = URL.createObjectURL(file);
-      });
-    }
-
-    // เมื่อเลือกรูปภาพจากเครื่อง
-    document.getElementById("edit-avatar-file").addEventListener("change", async (e) => {
+    // ระบบเลือกรูปภาพและเปิดหน้าต่างครอปอิสระ
+    document.getElementById("edit-avatar-file").addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (file) {
-        const croppedBase64 = await cropAndCompressImage(file);
-        document.getElementById("avatar-preview-img").src = croppedBase64;
-        document.getElementById("avatar-preview-img").style.display = "block";
-        document.getElementById("avatar-placeholder-txt").style.display = "none";
-        
-        // 6. บันทึกรูปอัตโนมัติลง Firestore
-        if (auth.currentUser) {
-          await updateDoc(doc(db, "users", auth.currentUser.uid), { avatar: croppedBase64 });
-          triggerAutoSaveNotice("บันทึกรูปโปรไฟล์เรียบร้อย!");
-          document.getElementById("floating-profile-btn").innerHTML = `<img src="${croppedBase64}" alt="Avatar">`;
-        }
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const imgElem = document.getElementById("image-to-crop");
+          imgElem.src = event.target.result;
+          cropperModal.style.display = "flex";
+
+          if (cropper) { cropper.destroy(); }
+          // สร้างเครื่องมือครอปแบบอิสระ (สัดส่วน 1:1 เป็นกรอบสี่เหลี่ยมปรับเลื่อนได้)
+          cropper = new Cropper(imgElem, {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 0.8,
+          });
+        };
+        reader.readAsDataURL(file);
       }
     });
 
-    // เปิดหน้าโปรไฟล์ส่วนตัว
+    // เมื่อกด "ยืนยันการครอปรูป"
+    document.getElementById("crop-confirm-btn").addEventListener("click", async () => {
+      if (!cropper) return;
+      const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+      const croppedBase64 = canvas.toDataURL("image/jpeg", 0.85);
+
+      document.getElementById("avatar-preview-img").src = croppedBase64;
+      document.getElementById("avatar-preview-img").style.display = "block";
+      document.getElementById("avatar-placeholder-txt").style.display = "none";
+      cropperModal.style.display = "none";
+
+      // บันทึกรูปลง Firestore อัตโนมัติทันที
+      if (auth.currentUser) {
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { avatar: croppedBase64 });
+        triggerAutoSaveNotice("บันทึกรูปโปรไฟล์เรียบร้อย!");
+        document.getElementById("floating-profile-btn").innerHTML = `<img src="${croppedBase64}" alt="Avatar">`;
+      }
+    });
+
     function openProfileModal() {
       if (!currentUserData) return;
       
-      // 1. ชื่อผู้ใช้
       document.getElementById("profile-username-input").value = currentUserData.username || "";
-      
-      // 2. รหัสผ่าน
       document.getElementById("profile-password-display").value = currentRawPassword || "••••••••";
       document.getElementById("profile-password-display").type = "password";
       document.getElementById("toggle-eye-btn").textContent = "👁️";
 
-      // 3. สิทธิ์ของยูส
       const badgeBox = document.getElementById("user-role-badge-container");
       const role = currentUserData.role || "customer";
       let rText = "👤 ลูกค้าทั่วไป", rClass = "role-customer";
@@ -378,7 +387,6 @@
       else if (role === "agent") { rText = "🌟 ตัวแทนจำหน่าย (Agent)"; rClass = "role-agent"; }
       badgeBox.innerHTML = `<span class="role-badge ${rClass}">สิทธิ์บัญชี: ${rText}</span>`;
 
-      // 4. รูปโปรไฟล์
       const prevImg = document.getElementById("avatar-preview-img");
       const placeholderTxt = document.getElementById("avatar-placeholder-txt");
       if (currentUserData.avatar) {
@@ -393,7 +401,6 @@
       profileModal.style.display = "flex";
     }
 
-    // 2. ไอคอนรูปตากดเปิด/ปิดรหัสผ่าน
     window.togglePassView = function() {
       const passInput = document.getElementById("profile-password-display");
       const eyeBtn = document.getElementById("toggle-eye-btn");
@@ -406,7 +413,6 @@
       }
     };
 
-    // 6. พิมพ์เปลี่ยนชื่อแล้วบันทึกอัตโนมัติ
     document.getElementById("profile-username-input").addEventListener("input", (e) => {
       clearTimeout(autoSaveTimer);
       const newName = e.target.value.trim();
@@ -427,7 +433,6 @@
       setTimeout(() => { box.textContent = ""; }, 2500);
     }
 
-    // 5. ปุ่มเปลี่ยนรหัสผ่าน 4 ตัว
     window.togglePassCollapsible = function() {
       const box = document.getElementById("pass-collapsible-box");
       const arrow = document.getElementById("pass-arrow");
@@ -454,7 +459,6 @@
       } catch (err) { alert("ผิดพลาด: " + err.message); }
     });
 
-    // 7. ออกจากระบบ
     window.logoutUser = async function() {
       await signOut(auth);
       profileModal.style.display = "none";
@@ -462,7 +466,6 @@
       location.reload();
     };
 
-    // 🔑 ลืมรหัสผ่าน
     window.forgotPassword = async function() {
       const usernameInput = document.getElementById("auth-username").value.trim();
       if (!usernameInput) { alert("กรุณากรอกชื่อผู้ใช้ในช่องด้านบนก่อนกดลืมรหัสผ่าน"); return; }
@@ -473,7 +476,6 @@
       } catch (err) { alert("ไม่พบชื่อผู้ใช้นี้ในระบบ"); }
     };
 
-    // สลับโหมด เข้าสู่ระบบ / สมัครสมาชิก
     document.getElementById("switch-mode-btn").addEventListener("click", () => {
       isSignUpMode = !isSignUpMode;
       document.getElementById("modal-title").textContent = isSignUpMode ? "สมัครสมาชิก" : "เข้าสู่ระบบ";
@@ -482,7 +484,6 @@
       document.getElementById("forgot-pass-btn").style.display = isSignUpMode ? "none" : "inline-flex";
     });
 
-    // ฟอร์มเข้าสู่ระบบ / สมัครสมาชิก (ใช้ชื่อผู้ใช้ 5 ตัว + รหัส 4 ตัว)
     document.getElementById("auth-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const username = document.getElementById("auth-username").value.trim();
