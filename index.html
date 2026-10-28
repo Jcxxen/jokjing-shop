@@ -218,11 +218,11 @@
         <input type="text" id="profile-username-input" minlength="5">
       </div>
 
-      <!-- 2. รหัสผ่าน -->
+      <!-- 2. รหัสผ่านปัจจุบัน (ดึงค่ามาแสดง) -->
       <div class="form-group">
         <label>2. รหัสผ่านปัจจุบัน:</label>
         <div class="pass-input-wrapper">
-          <input type="password" id="profile-password-display" readonly value="••••••••">
+          <input type="password" id="profile-password-display" readonly value="">
           <button type="button" class="toggle-eye-btn" id="toggle-eye-btn" onclick="togglePassView()">👁️</button>
         </div>
       </div>
@@ -285,7 +285,7 @@
     let currentUserData = null;
     let isSignUpMode = false;
     let autoSaveTimer = null;
-    let currentRawPassword = "";
+    let currentRawPassword = localStorage.getItem("saved_pass") || ""; // ดึงรหัสผ่านที่เคยจำไว้
     let cropper = null;
 
     const authModal = document.getElementById("auth-modal");
@@ -443,6 +443,7 @@
       }
     };
 
+    // เปลี่ยนรหัสผ่านใหม่ (ป้องกัน Error กรณีเซสชันเก่าหมดอายุ)
     document.getElementById("change-pass-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const newPass = document.getElementById("new-password-input").value;
@@ -450,14 +451,22 @@
       try {
         await updatePassword(auth.currentUser, newPass);
         currentRawPassword = newPass;
+        localStorage.setItem("saved_pass", newPass);
         document.getElementById("profile-password-display").value = newPass;
         alert("เปลี่ยนรหัสผ่านสำเร็จ!");
         document.getElementById("new-password-input").value = "";
         togglePassCollapsible();
-      } catch (err) { alert("ผิดพลาด: " + err.message); }
+      } catch (err) { 
+        if (err.code === 'auth/requires-recent-login') {
+          alert("เพื่อความปลอดภัย กรุณาออกจากระบบแล้วเข้าสู่ระบบใหม่อีกครั้ง ก่อนเปลี่ยนรหัสผ่าน");
+        } else {
+          alert("ผิดพลาด: " + err.message); 
+        }
+      }
     });
 
     window.logoutUser = async function() {
+      localStorage.removeItem("saved_pass");
       await signOut(auth);
       profileModal.style.display = "none";
       alert("ออกจากระบบเรียบร้อยแล้ว");
@@ -499,10 +508,12 @@
             createdAt: new Date() 
           });
           currentRawPassword = pass;
+          localStorage.setItem("saved_pass", pass);
           alert("สมัครสมาชิกสำเร็จ!");
         } else {
           await signInWithEmailAndPassword(auth, email, pass);
           currentRawPassword = pass;
+          localStorage.setItem("saved_pass", pass);
           alert("เข้าสู่ระบบสำเร็จ!");
         }
         authModal.style.display = "none";
@@ -514,6 +525,8 @@
           errorMsg = "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษรขึ้นไป";
         } else if (err.code === 'auth/invalid-email') {
           errorMsg = "รูปแบบอีเมลไม่ถูกต้อง";
+        } else if (err.code === 'auth/invalid-credential') {
+          errorMsg = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
         }
         alert("เกิดข้อผิดพลาด: " + errorMsg); 
       }
