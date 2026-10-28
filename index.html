@@ -324,7 +324,7 @@
       
       <div style="background:var(--bg-color); padding:10px; border-radius:8px; text-align:center; border:1px solid var(--border-color);">
         <h4 style="margin:0 0 5px 0; font-size:13px;" id="payment-acc-title">ช่องทางโอนเงิน</h4>
-        <img id="payment-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=PromptPayJokjing" class="qr-img" alt="QR">
+        <img id="payment-qr-img" src="" alt="ยังไม่ได้ตั้ง QR" class="qr-img" alt="QR">
         <div class="form-group" style="text-align:left; margin-top:8px;">
           <label>แนบสลิปการโอนเงินโอนสด:</label>
           <input type="file" id="slip-file-input" accept="image/*" required>
@@ -1179,7 +1179,7 @@
         cartModal.style.display = "none";
         updateAnalyticsStats();
       };
-      reader.readAsDataURL(slipFile);
+      fileToBase64(slipFile).then(data => reader.onload({ target: { result: data } }));
     });
 
     // สลับโหมด เข้าสู่ระบบ / สมัครสมาชิก (แสดงปุ่มสุ่มชื่อเฉพาะตอนสมัคร)
