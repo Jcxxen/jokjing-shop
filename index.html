@@ -482,7 +482,8 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    let currentUserData = null;
+    let currentUserData = null;const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
     let isSignUpMode = false;
     let cart = [];
     let allAppsAndProductsCache = [];
