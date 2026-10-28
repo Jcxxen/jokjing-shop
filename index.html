@@ -324,7 +324,7 @@
       
       <div style="background:var(--bg-color); padding:10px; border-radius:8px; text-align:center; border:1px solid var(--border-color);">
         <h4 style="margin:0 0 5px 0; font-size:13px;" id="payment-acc-title">ช่องทางโอนเงิน</h4>
-        <img id="payment-qr-img" src="" alt="ยังไม่ได้ตั้ง QR" class="qr-img" alt="QR">
+        <img id="payment-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=PromptPayJokjing" class="qr-img" alt="QR">
         <div class="form-group" style="text-align:left; margin-top:8px;">
           <label>แนบสลิปการโอนเงินโอนสด:</label>
           <input type="file" id="slip-file-input" accept="image/*" required>
@@ -482,8 +482,7 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    let currentUserData = null;const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-
+    let currentUserData = null;
     let isSignUpMode = false;
     let cart = [];
     let allAppsAndProductsCache = [];
@@ -532,27 +531,13 @@
     document.getElementById("admin-modal-close").addEventListener("click", () => adminModal.style.display = "none");
 
     function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      // ตัวแปร k เอาไว้คำนวณย่อขนาดสัดส่วนไม่ให้เกิน 800 พิกเซล
-      const k = Math.min(1, 800 / Math.max(img.width, img.height));
-      const c = document.createElement("canvas");
-      c.width = img.width * k; 
-      c.height = img.height * k;
-      
-      // วาดรูปลงบน Canvas ที่ย่อแล้ว
-      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-      
-      // ตรงนี้คือการแปลงเป็น Base64 แบบบีบอัดคุณภาพเหลือ 70% (.toDataURL)
-      resolve(c.toDataURL("image/jpeg", 0.7));
-    };
-    img.onerror = reject;
-    img.src = URL.createObjectURL(file);
-  });
-}
-
-
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
 
     document.getElementById("set-shop-logo-file").addEventListener("change", async (e) => {
       const file = e.target.files[0];
@@ -676,24 +661,29 @@
     });
 
     async function updateAnalyticsStats() {
-  try {
-    const ref = doc(db, "stats", "public");
-    if (currentUserData?.role === "admin") {
-      const [u, o, p] = await Promise.all(["users", "orders", "products"].map(c => getDocs(collection(db, c))));
-      let sold = 0, stock = 0;
-      o.forEach(d => { if (d.data().status === "approved") sold += d.data().items?.length || 0; });
-      p.forEach(d => { stock += d.data().stockCount || 0; });
-      await setDoc(ref, { users: u.size, sold, stock });
-    }
-    const s = (await getDoc(ref)).data();
-    if (s) {
-      document.getElementById("stat-users").textContent = s.users;
-      document.getElementById("stat-sold").textContent = s.sold;
-      document.getElementById("stat-stock").textContent = s.stock;
-    }
-  } catch (e) { console.error(e); }
-}
+      try {
+        const usersSnap = await getDocs(collection(db, "users"));
+        const ordersSnap = await getDocs(collection(db, "orders"));
+        const prodsSnap = await getDocs(collection(db, "products"));
 
+        let totalSold = 0;
+        let totalStock = 0;
+
+        ordersSnap.forEach(d => {
+          const o = d.data();
+          if (o.status === 'approved') totalSold += o.items?.length || 0;
+        });
+
+        prodsSnap.forEach(d => {
+          const p = d.data();
+          if (p.stockCodes && Array.isArray(p.stockCodes)) totalStock += p.stockCodes.length;
+        });
+
+        document.getElementById("stat-users").textContent = usersSnap.size;
+        document.getElementById("stat-sold").textContent = totalSold;
+        document.getElementById("stat-stock").textContent = totalStock;
+      } catch (e) { console.error(e); }
+    }
 
     // 👤 Modal แก้ไขโปรไฟล์ส่วนตัว
     window.openProfileEditModal = function() {
@@ -767,7 +757,7 @@
         let codeStr = o.deliveredCode ? `<div style="background:#fff; border:1px solid #22c55e; padding:6px; border-radius:4px; font-family:monospace; margin-top:5px; color:#15803d;">🔑 รหัสที่ได้รับ: <b>${o.deliveredCode}</b></div>` : '<span style="color:orange;">⏳ รออนุมัติรหัส</span>';
         container.innerHTML += `
           <div style="background:var(--bg-color); border:1px solid var(--border-color); padding:10px; border-radius:8px; margin-bottom:8px; font-size:12px;">
-            <div><strong>รายการ:</strong> ${o.items?.map(i => esc(i.productName)).join(', ')} (฿${o.totalAmount})</div>
+            <div><strong>รายการ:</strong> ${o.items?.map(i => i.productName).join(', ')} (฿${o.totalAmount})</div>
             <div><strong>สถานะ:</strong> ${o.status === 'approved' ? '<span style="color:green;">อนุมัติแล้ว</span>' : o.status}</div>
             ${codeStr}
             ${o.status === 'approved' ? `<button onclick="window.open('https://line.me/R/ti/p/${shopConfig.lineId}')" style="background:#f97316; color:white; border:none; padding:4px 8px; border-radius:4px; margin-top:6px; cursor:pointer; font-size:11px;">⚠️ แจ้งปัญหา / ขอเคลม</button>` : ''}
@@ -794,10 +784,10 @@
         box.innerHTML += `
           <div class="review-item">
             <div style="display:flex; justify-content:space-between;">
-              <strong>${esc(r.username)}</strong>
+              <strong>${r.username}</strong>
               <span class="star-rating">${stars}</span>
             </div>
-            <div style="margin-top:4px; color:#475569;">${esc(r.comment)}</div>
+            <div style="margin-top:4px; color:#475569;">${r.comment}</div>
           </div>`;
       });
     }
@@ -849,12 +839,12 @@
       snapshot.forEach(docSnap => {
         const order = docSnap.data();
         const orderId = docSnap.id;
-        let itemsText = order.items.map(i => `${esc(i.productName)} - ฿${Number(i.price)}`).join("<br>");
+        let itemsText = order.items.map(i => `${i.productName} - ฿${i.price}`).join("<br>");
         container.innerHTML += `
           <div class="admin-order-card">
-            <p><strong>ผู้ซื้อ:</strong> ${esc(order.username)} · <b style="color:#ef4444;">฿${order.totalAmount}</b></p>
+            <p><strong>ผู้ซื้อ:</strong> ${order.username} · <b style="color:#ef4444;">฿${order.totalAmount}</b></p>
             <p><strong>สินค้า:</strong><br>${itemsText}</p>
-            <p><strong>สถานะ:</strong> ${order.status} | <a href="${String(order.slipUrl).startsWith('data:image/') ? order.slipUrl : '#'}" target="_blank" style="color:#4f46e5; font-weight:bold;">🔍 ดูสลิป</a></p>
+            <p><strong>สถานะ:</strong> ${order.status} | <a href="${order.slipUrl}" target="_blank" style="color:#4f46e5; font-weight:bold;">🔍 ดูสลิป</a></p>
             ${order.status === 'pending' ? `
               <button onclick="approveOrder('${orderId}')" style="background:#22c55e; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px;">อนุมัติ</button>
             ` : `
@@ -866,29 +856,26 @@
 
     window.approveOrder = async function(orderId) {
       const orderRef = doc(db, "orders", orderId);
-      const order = (await getDoc(orderRef)).data();
-      if (order.status !== "pending") return;
-      const left = {};
-      const delivered = [];
-      for (const item of order.items) {
-        if (!left[item.productId]) {
-          left[item.productId] = (await getDoc(doc(db, "stock", item.productId))).data()?.codes || [];
+      const orderSnap = await getDoc(orderRef);
+      const orderData = orderSnap.data();
+      const item = orderData.items[0];
+      const prodRef = doc(db, "products", item.productId);
+      const prodSnap = await getDoc(prodRef);
+      
+      let assignedCode = "สำเร็จ";
+      if (prodSnap.exists()) {
+        let codes = prodSnap.data().stockCodes || [];
+        if (codes.length > 0) {
+          assignedCode = codes.shift();
+          await updateDoc(prodRef, { stockCodes: codes });
         }
-        const code = left[item.productId].shift();
-        if (!code) { alert("สต็อกหมด: " + item.productName); return; }
-        delivered.push(`${item.productName}: ${code}`);
       }
-      for (const pid in left) {
-        await setDoc(doc(db, "stock", pid), { codes: left[pid] });
-        await updateDoc(doc(db, "products", pid), { stockCount: left[pid].length });
-      } 
-      await updateDoc(orderRef, { status: "approved", deliveredCode: delivered.join(" | ") });
+      await updateDoc(orderRef, { status: "approved", deliveredCode: assignedCode });
       alert("อนุมัติสำเร็จ!");
       loadAdminOrders();
       updateAnalyticsStats();
       loadStoreData();
     };
-
 
     window.refundOrder = async function(orderId) {
       if (!confirm("ยืนยันการคืนเงินให้ลูกค้า?")) return;
@@ -919,7 +906,7 @@
             <button onclick="deleteApp('${appObj.id}')" style="background:#ef4444; color:white; border:none; padding:2px 6px; border-radius:3px; font-size:11px; cursor:pointer;">ลบแอป</button>
           </div>`;
         appObj.items.forEach(item => {
-          const stockCount = item.stockCount || 0;
+          const stockCount = item.stockCodes?.length || 0;
           const lowStockAlert = stockCount <= 2 ? `<span style="color:red; font-weight:bold;">⚠️ สต็อกต่ำ</span>` : '';
           html += `<div style="background:#fff; border:1px solid var(--border-color); padding:8px; border-radius:6px; margin-top:6px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
             <div>
@@ -982,16 +969,14 @@
 
       const stockCodes = stockRaw ? stockRaw.split("\n").map(s => s.trim()).filter(s => s) : [];
 
-      const prodData = { name, appId, type, price, agentPrice, details, stockCount: stockCodes.length, isHot, isActive };
-      let pid = prodId;
+      const prodData = { name, appId, type, price, agentPrice, details, stockCodes, isHot, isActive };
+
       if (prodId) {
         await updateDoc(doc(db, "products", prodId), prodData);
       } else {
         prodData.createdAt = new Date();
-        pid = (await addDoc(collection(db, "products"), prodData)).id;
+        await addDoc(collection(db, "products"), prodData);
       }
-      await setDoc(doc(db, "stock", pid), { codes: stockCodes });
-
       alert("บันทึกสินค้าสำเร็จ!");
       document.getElementById("prod-modal").style.display = "none";
       loadAdminProducts();
@@ -1010,8 +995,7 @@
         document.getElementById("p-price").value = d.price;
         document.getElementById("p-agent-price").value = d.agentPrice;
         document.getElementById("p-details").value = d.details || "";
-        const st = await getDoc(doc(db, "stock", id));
-        document.getElementById("p-stock").value = (st.exists() ? st.data().codes : []).join("\n");
+        document.getElementById("p-stock").value = (d.stockCodes || []).join("\n");
         document.getElementById("p-is-hot").checked = d.isHot || false;
         document.getElementById("p-is-active").checked = d.isActive !== false;
         document.getElementById("prod-modal").style.display = "flex";
@@ -1041,7 +1025,7 @@
         const u = docSnap.data();
         const userId = docSnap.id;
         container.innerHTML += `<div style="background:var(--bg-color); border:1px solid var(--border-color); padding:8px; border-radius:6px; margin-bottom:6px; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span><strong>${esc(u.username)}</strong> | สิทธิ์: <b>${u.role}</b></span>
+          <span><strong>${u.username}</strong> | สิทธิ์: <b>${u.role}</b></span>
           <div>
             <button onclick="toggleAgentRole('${userId}', '${u.role}')" style="background:#4f46e5; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px; margin-right:4px;">สลับตัวแทน</button>
             <button onclick="deleteUser('${userId}')" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">ลบ</button>
@@ -1102,7 +1086,7 @@
             </div>`;
 
         appObj.items.forEach(item => {
-          const stockCount = item.stockCount || 0;
+          const stockCount = item.stockCodes?.length || 0;
           const isOutOfStock = stockCount <= 0;
           const price = isAgent ? (item.agentPrice || item.price) : item.price;
 
@@ -1186,7 +1170,7 @@
         cartModal.style.display = "none";
         updateAnalyticsStats();
       };
-      fileToBase64(slipFile).then(data => reader.onload({ target: { result: data } }));
+      reader.readAsDataURL(slipFile);
     });
 
     // สลับโหมด เข้าสู่ระบบ / สมัครสมาชิก (แสดงปุ่มสุ่มชื่อเฉพาะตอนสมัคร)
@@ -1204,15 +1188,16 @@
       const pass = document.getElementById("auth-password").value;
       try {
         if (isSignUpMode) {
-  const finalUsername = `${raw}_#${Math.floor(1000 + Math.random() * 9000)}`;
-  const cred = await createUserWithEmailAndPassword(auth, `${encodeURIComponent(finalUsername).toLowerCase()}@jokjing.shop`, pass);
-  await setDoc(doc(db, "users", cred.user.uid), { username: finalUsername, role: "customer", createdAt: new Date() });
-  alert("สมัครสมาชิกสำเร็จ!");
-} else {
-  await signInWithEmailAndPassword(auth, raw.includes("@") ? raw : `${encodeURIComponent(raw).toLowerCase()}@jokjing.shop`, pass);
-  alert("เข้าสู่ระบบสำเร็จ!");
-}
-
+          const snap = await getDocs(collection(db, "users"));
+          const memberNo = snap.size + 1;
+          const finalUsername = `${raw}_#${String(memberNo).padStart(3, '0')}`;
+          const cred = await createUserWithEmailAndPassword(auth, `${encodeURIComponent(finalUsername).toLowerCase()}@jokjing.shop`, pass);
+          await setDoc(doc(db, "users", cred.user.uid), { username: finalUsername, role: "customer", createdAt: new Date() });
+          alert("สมัครสมาชิกสำเร็จ!");
+        } else {
+          await signInWithEmailAndPassword(auth, raw.includes("@") ? raw : `${encodeURIComponent(raw).toLowerCase()}@jokjing.shop`, pass);
+          alert("เข้าสู่ระบบสำเร็จ!");
+        }
         authModal.style.display = "none";
       } catch (err) { alert("ผิดพลาด: " + err.message); }
     });
