@@ -164,6 +164,7 @@
     }
     .btn-submit { width: 100%; background: #22c55e; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .switch-mode { text-align: center; margin-top: 15px; font-size: 13px; color: #4f46e5; cursor: pointer; text-decoration: underline; }
+    .forgot-pass { text-align: center; margin-top: 8px; font-size: 12px; color: #64748b; cursor: pointer; }
 
     /* Admin Tabs */
     .admin-tabs { display: flex; gap: 4px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; flex-wrap: wrap; }
@@ -173,11 +174,18 @@
     .admin-sec.active { display: block; }
     .admin-order-card { background: var(--bg-color); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
     .qr-img { width: 160px; height: 160px; margin: 10px auto; display: block; border: 2px solid var(--border-color); border-radius: 8px; object-fit: cover; }
-    .img-preview { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-color); margin-top: 5px; display: none; }
+    .img-preview { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-color); margin-top: 5px; display: none; }
 
     .review-item { background: var(--bg-color); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 12px; }
     .star-rating { color: #f59e0b; font-size: 14px; }
     
+    .role-badge {
+      display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 10px;
+    }
+    .role-admin { background: #fee2e2; color: #dc2626; }
+    .role-agent { background: #dbeafe; color: #2563eb; }
+    .role-customer { background: #f1f5f9; color: #475569; }
+
     /* Collapsible section for password change */
     .collapsible-btn {
       width: 100%; background: var(--bg-color); border: 1px solid var(--border-color);
@@ -258,7 +266,7 @@
   </div>
 
   <!-- Modals -->
-  <!-- Auth Modal (พร้อมปุ่มสุ่มชื่อสไตล์ญี่ปุ่น 🎲) -->
+  <!-- Auth Modal (พร้อมปุ่มสุ่มชื่อ 50 ชื่อ, ลืมรหัสผ่าน, ปุ่มสุ่มซ่อนเฉพาะตอนสมัคร) -->
   <div class="modal" id="auth-modal">
     <div class="modal-content">
       <span class="close-btn" id="auth-modal-close">&times;</span>
@@ -268,7 +276,7 @@
           <label id="username-label">ชื่อผู้ใช้งาน (Username)</label>
           <div style="display:flex; gap:6px;">
             <input type="text" id="auth-username" required placeholder="กรอกชื่อผู้ใช้ของคุณ">
-            <button type="button" id="random-name-btn" style="display:none; background:#4f46e5; color:white; border:none; padding:0 12px; border-radius:6px; cursor:pointer; font-size:16px;">🎲 สุ่มชื่อ</button>
+            <button type="button" id="random-name-btn" style="display:none; background:#4f46e5; color:white; border:none; padding:0 12px; border-radius:6px; cursor:pointer; font-size:16px;" title="สุ่มชื่อสไตล์ญี่ปุ่น 50 ชื่อ">🎲 สุ่มชื่อ</button>
           </div>
         </div>
         <div class="form-group">
@@ -278,22 +286,25 @@
         <button type="submit" class="btn-submit" id="modal-submit-btn">เข้าสู่ระบบ</button>
       </form>
       <div class="switch-mode" id="switch-mode-btn">ยังไม่มีบัญชี? สมัครสมาชิก</div>
+      <div class="forgot-pass" id="forgot-pass-btn" onclick="forgotPassword()">🔑 ลืมรหัสผ่าน?</div>
     </div>
   </div>
 
-  <!-- 👤 Modal: แก้ไขโปรไฟล์ส่วนตัว (ล็อครหัสสมาชิก + ย่อเปลี่ยนรหัสผ่าน) -->
+  <!-- 👤 Modal: แก้ไขโปรไฟล์ส่วนตัว (แสดง Badge สิทธิ์ + ล็อครหัส + พรีวิวครอปรูป) -->
   <div class="modal" id="profile-edit-modal">
     <div class="modal-content">
       <span class="close-btn" onclick="document.getElementById('profile-edit-modal').style.display='none'">&times;</span>
       <h3>👤 แก้ไขโปรไฟล์ส่วนตัว</h3>
+      <div id="user-role-badge-container"></div>
       <form id="profile-edit-form">
         <div class="form-group">
-          <label>ชื่อผู้ใช้งาน (รหัสสมาชิกจะถูกล็อคไว้อัตโนมัติ):</label>
+          <label>ชื่อผู้ใช้งาน (รหัสสมาชิกถูกล็อคไว้อัตโนมัติ):</label>
           <input type="text" id="edit-username-input" required>
         </div>
         <div class="form-group">
-          <label>เปลี่ยนรูปโปรไฟล์ (เลือกไฟล์ภาพ):</label>
+          <label>เปลี่ยนรูปโปรไฟล์ (เลือกไฟล์ & พรีวิวครอป):</label>
           <input type="file" id="edit-avatar-file" accept="image/*">
+          <img id="edit-avatar-preview" class="img-preview" alt="Preview">
         </div>
         <button type="submit" class="btn-submit" style="background:#4f46e5;">💾 บันทึกโปรไฟล์</button>
       </form>
@@ -324,10 +335,11 @@
       
       <div style="background:var(--bg-color); padding:10px; border-radius:8px; text-align:center; border:1px solid var(--border-color);">
         <h4 style="margin:0 0 5px 0; font-size:13px;" id="payment-acc-title">ช่องทางโอนเงิน</h4>
-        <img id="payment-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=PromptPayJokjing" class="qr-img" alt="QR">
+        <img id="payment-qr-img" src="" alt="QR" class="qr-img">
         <div class="form-group" style="text-align:left; margin-top:8px;">
-          <label>แนบสลิปการโอนเงินโอนสด:</label>
+          <label>แนบสลิปการโอนเงิน (พร้อมพรีวิว):</label>
           <input type="file" id="slip-file-input" accept="image/*" required>
+          <img id="slip-preview" class="img-preview" alt="Preview">
         </div>
       </div>
       <button class="btn-submit" id="submit-order-btn">🚀 ยืนยันชำระเงินแนบสลิป</button>
@@ -405,12 +417,12 @@
           <div class="form-group"><label>เวลาทำการ</label><input type="text" id="set-working-time" placeholder="09:00–24:00 น."></div>
           <div class="form-group"><label>กฎของร้าน</label><textarea id="set-rules" rows="2"></textarea></div>
           <div class="form-group">
-            <label>โลโก้ร้าน (เลือกไฟล์ภาพ)</label>
+            <label>โลโก้ร้าน (เลือกไฟล์ & พรีวิว)</label>
             <input type="file" id="set-shop-logo-file" accept="image/*">
             <img id="set-shop-logo-preview" class="img-preview" alt="Preview">
           </div>
           <div class="form-group">
-            <label>QR Code พร้อมเพย์ (เลือกไฟล์ภาพ)</label>
+            <label>QR Code พร้อมเพย์ (เลือกไฟล์ & พรีวิว)</label>
             <input type="file" id="set-qr-file" accept="image/*">
             <img id="set-qr-preview" class="img-preview" alt="Preview">
           </div>
@@ -427,7 +439,7 @@
       <form id="app-form">
         <div class="form-group"><label>ชื่อแอป</label><input type="text" id="app-modal-name" required></div>
         <div class="form-group">
-          <label>ไอคอนแอป (เลือกไฟล์ภาพ)</label>
+          <label>ไอคอนแอป (เลือกไฟล์ & พรีวิว)</label>
           <input type="file" id="app-modal-icon-file" accept="image/*">
           <img id="app-modal-icon-preview" class="img-preview" alt="Preview">
         </div>
@@ -467,7 +479,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc, addDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA16VXbSopR3NTBMD-SU-RCgJV5zLPkkBU",
@@ -483,6 +495,8 @@
     const auth = getAuth(app);
 
     let currentUserData = null;
+    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
     let isSignUpMode = false;
     let cart = [];
     let allAppsAndProductsCache = [];
@@ -530,12 +544,20 @@
     document.getElementById("cart-modal-close").addEventListener("click", () => cartModal.style.display = "none");
     document.getElementById("admin-modal-close").addEventListener("click", () => adminModal.style.display = "none");
 
+    // ฟังก์ชันแปลงไฟล์เป็น Base64 พร้อมระบบพรีวิวและย่อสัดส่วนอัตโนมัติ
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
+        const img = new Image();
+        img.onload = () => {
+          const k = Math.min(1, 800 / Math.max(img.width, img.height));
+          const c = document.createElement("canvas");
+          c.width = img.width * k; 
+          c.height = img.height * k;
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          resolve(c.toDataURL("image/jpeg", 0.7));
+        };
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
       });
     }
 
@@ -571,10 +593,25 @@
 
     document.getElementById("edit-avatar-file").addEventListener("change", async (e) => {
       const file = e.target.files[0];
-      if (file) uploadedProfileAvatarBase64 = await fileToBase64(file);
+      if (file) {
+        uploadedProfileAvatarBase64 = await fileToBase64(file);
+        const prev = document.getElementById("edit-avatar-preview");
+        prev.src = uploadedProfileAvatarBase64;
+        prev.style.display = "block";
+      }
     });
 
-    // 🎲 ปุ่มสุ่มชื่อสไตล์ญี่ปุ่น
+    document.getElementById("slip-file-input").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const b64 = await fileToBase64(file);
+        const prev = document.getElementById("slip-preview");
+        prev.src = b64;
+        prev.style.display = "block";
+      }
+    });
+
+    // 🎲 ปุ่มสุ่มชื่อสไตล์ญี่ปุ่น 50 ชื่อ (แสดงเฉพาะตอนสมัคร)
     document.getElementById("random-name-btn").addEventListener("click", () => {
       const randomIndex = Math.floor(Math.random() * japaneseNames.length);
       document.getElementById("auth-username").value = japaneseNames[randomIndex];
@@ -662,38 +699,45 @@
 
     async function updateAnalyticsStats() {
       try {
-        const usersSnap = await getDocs(collection(db, "users"));
-        const ordersSnap = await getDocs(collection(db, "orders"));
-        const prodsSnap = await getDocs(collection(db, "products"));
-
-        let totalSold = 0;
-        let totalStock = 0;
-
-        ordersSnap.forEach(d => {
-          const o = d.data();
-          if (o.status === 'approved') totalSold += o.items?.length || 0;
-        });
-
-        prodsSnap.forEach(d => {
-          const p = d.data();
-          if (p.stockCodes && Array.isArray(p.stockCodes)) totalStock += p.stockCodes.length;
-        });
-
-        document.getElementById("stat-users").textContent = usersSnap.size;
-        document.getElementById("stat-sold").textContent = totalSold;
-        document.getElementById("stat-stock").textContent = totalStock;
+        const ref = doc(db, "stats", "public");
+        if (currentUserData?.role === "admin") {
+          const [u, o, p] = await Promise.all(["users", "orders", "products"].map(c => getDocs(collection(db, c))));
+          let sold = 0, stock = 0;
+          o.forEach(d => { if (d.data().status === "approved") sold += d.data().items?.length || 0; });
+          p.forEach(d => { stock += d.data().stockCount || 0; });
+          await setDoc(ref, { users: u.size, sold, stock });
+        }
+        const s = (await getDoc(ref)).data();
+        if (s) {
+          document.getElementById("stat-users").textContent = s.users;
+          document.getElementById("stat-sold").textContent = s.sold;
+          document.getElementById("stat-stock").textContent = s.stock;
+        }
       } catch (e) { console.error(e); }
     }
 
-    // 👤 Modal แก้ไขโปรไฟล์ส่วนตัว
+    // 👤 Modal แก้ไขโปรไฟล์ส่วนตัว (แสดง Badge สิทธิ์ + ล็อครหัส)
     window.openProfileEditModal = function() {
       if (!auth.currentUser) { alert("กรุณาเข้าสู่ระบบก่อนครับ"); authModal.style.display = "flex"; return; }
       const input = document.getElementById("edit-username-input");
       const fullUsername = currentUserData ? currentUserData.username : "";
       
-      // ดึงเฉพาะชื่อหน้า แยกจากรหัสรันสมาชิก (_#001)
       const parts = fullUsername.split("_#");
       input.value = parts[0] || fullUsername;
+
+      const badgeContainer = document.getElementById("user-role-badge-container");
+      const role = currentUserData?.role || "customer";
+      let badgeText = "👤 ลูกค้าทั่วไป", badgeClass = "role-customer";
+      if (role === "admin") { badgeText = "👑 แอดมินเจ้าของร้าน"; badgeClass = "role-admin"; }
+      else if (role === "agent") { badgeText = "🌟 ตัวแทนจำหน่าย (Agent)"; badgeClass = "role-agent"; }
+      
+      badgeContainer.innerHTML = `<span class="role-badge ${badgeClass}">สิทธิ์ของคุณ: ${badgeText}</span>`;
+      
+      if (currentUserData?.avatar) {
+        const prev = document.getElementById("edit-avatar-preview");
+        prev.src = currentUserData.avatar;
+        prev.style.display = "block";
+      }
 
       document.getElementById("profile-edit-modal").style.display = "flex";
     };
@@ -703,7 +747,7 @@
       const newBaseName = document.getElementById("edit-username-input").value.trim();
       const fullUsername = currentUserData ? currentUserData.username : "";
       const parts = fullUsername.split("_#");
-      const memberCode = parts[1] ? `_#${parts[1]}` : "";
+      const memberCode = parts[1] ? `_#${parts[1]}` : "_#001";
       const finalUsername = newBaseName + memberCode;
 
       const updatePayload = { username: finalUsername };
@@ -739,6 +783,21 @@
       } catch (err) { alert("เกิดข้อผิดพลาด: " + err.message); }
     });
 
+    // 🔑 ระบบลืมรหัสผ่าน
+    window.forgotPassword = async function() {
+      const usernameInput = document.getElementById("auth-username").value.trim();
+      if (!usernameInput) {
+        alert("กรุณากรอกชื่อผู้ใช้งาน (Username) ในช่องด้านบนก่อนกดลืมรหัสผ่าน");
+        return;
+      }
+      try {
+        await sendPasswordResetEmail(auth, `${encodeURIComponent(usernameInput).toLowerCase()}@jokjing.shop`);
+        alert(`ระบบได้ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลจำลองของบัญชี ${usernameInput} แล้ว!`);
+      } catch (err) {
+        alert("ไม่พบชื่อผู้ใช้นี้ในระบบ หรือเกิดข้อผิดพลาด: " + err.message);
+      }
+    };
+
     // 📜 ประวัติสั่งซื้อ
     window.openMyOrdersModal = async function() {
       if (!auth.currentUser) { alert("กรุณาเข้าสู่ระบบก่อนดูประวัติสั่งซื้อ"); authModal.style.display = "flex"; return; }
@@ -757,7 +816,7 @@
         let codeStr = o.deliveredCode ? `<div style="background:#fff; border:1px solid #22c55e; padding:6px; border-radius:4px; font-family:monospace; margin-top:5px; color:#15803d;">🔑 รหัสที่ได้รับ: <b>${o.deliveredCode}</b></div>` : '<span style="color:orange;">⏳ รออนุมัติรหัส</span>';
         container.innerHTML += `
           <div style="background:var(--bg-color); border:1px solid var(--border-color); padding:10px; border-radius:8px; margin-bottom:8px; font-size:12px;">
-            <div><strong>รายการ:</strong> ${o.items?.map(i => i.productName).join(', ')} (฿${o.totalAmount})</div>
+            <div><strong>รายการ:</strong> ${o.items?.map(i => esc(i.productName)).join(', ')} (฿${o.totalAmount})</div>
             <div><strong>สถานะ:</strong> ${o.status === 'approved' ? '<span style="color:green;">อนุมัติแล้ว</span>' : o.status}</div>
             ${codeStr}
             ${o.status === 'approved' ? `<button onclick="window.open('https://line.me/R/ti/p/${shopConfig.lineId}')" style="background:#f97316; color:white; border:none; padding:4px 8px; border-radius:4px; margin-top:6px; cursor:pointer; font-size:11px;">⚠️ แจ้งปัญหา / ขอเคลม</button>` : ''}
@@ -784,10 +843,10 @@
         box.innerHTML += `
           <div class="review-item">
             <div style="display:flex; justify-content:space-between;">
-              <strong>${r.username}</strong>
+              <strong>${esc(r.username)}</strong>
               <span class="star-rating">${stars}</span>
             </div>
-            <div style="margin-top:4px; color:#475569;">${r.comment}</div>
+            <div style="margin-top:4px; color:#475569;">${esc(r.comment)}</div>
           </div>`;
       });
     }
@@ -839,12 +898,12 @@
       snapshot.forEach(docSnap => {
         const order = docSnap.data();
         const orderId = docSnap.id;
-        let itemsText = order.items.map(i => `${i.productName} - ฿${i.price}`).join("<br>");
+        let itemsText = order.items.map(i => `${esc(i.productName)} - ฿${Number(i.price)}`).join("<br>");
         container.innerHTML += `
           <div class="admin-order-card">
-            <p><strong>ผู้ซื้อ:</strong> ${order.username} · <b style="color:#ef4444;">฿${order.totalAmount}</b></p>
+            <p><strong>ผู้ซื้อ:</strong> ${esc(order.username)} · <b style="color:#ef4444;">฿${order.totalAmount}</b></p>
             <p><strong>สินค้า:</strong><br>${itemsText}</p>
-            <p><strong>สถานะ:</strong> ${order.status} | <a href="${order.slipUrl}" target="_blank" style="color:#4f46e5; font-weight:bold;">🔍 ดูสลิป</a></p>
+            <p><strong>สถานะ:</strong> ${order.status} | <a href="${String(order.slipUrl).startsWith('data:image/') ? order.slipUrl : '#'}" target="_blank" style="color:#4f46e5; font-weight:bold;">🔍 ดูสลิป</a></p>
             ${order.status === 'pending' ? `
               <button onclick="approveOrder('${orderId}')" style="background:#22c55e; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px;">อนุมัติ</button>
             ` : `
@@ -856,21 +915,23 @@
 
     window.approveOrder = async function(orderId) {
       const orderRef = doc(db, "orders", orderId);
-      const orderSnap = await getDoc(orderRef);
-      const orderData = orderSnap.data();
-      const item = orderData.items[0];
-      const prodRef = doc(db, "products", item.productId);
-      const prodSnap = await getDoc(prodRef);
-      
-      let assignedCode = "สำเร็จ";
-      if (prodSnap.exists()) {
-        let codes = prodSnap.data().stockCodes || [];
-        if (codes.length > 0) {
-          assignedCode = codes.shift();
-          await updateDoc(prodRef, { stockCodes: codes });
+      const order = (await getDoc(orderRef)).data();
+      if (order.status !== "pending") return;
+      const left = {};
+      const delivered = [];
+      for (const item of order.items) {
+        if (!left[item.productId]) {
+          left[item.productId] = (await getDoc(doc(db, "stock", item.productId))).data()?.codes || [];
         }
+        const code = left[item.productId].shift();
+        if (!code) { alert("สต็อกหมด: " + item.productName); return; }
+        delivered.push(`${item.productName}: ${code}`);
       }
-      await updateDoc(orderRef, { status: "approved", deliveredCode: assignedCode });
+      for (const pid in left) {
+        await setDoc(doc(db, "stock", pid), { codes: left[pid] });
+        await updateDoc(doc(db, "products", pid), { stockCount: left[pid].length });
+      } 
+      await updateDoc(orderRef, { status: "approved", deliveredCode: delivered.join(" | ") });
       alert("อนุมัติสำเร็จ!");
       loadAdminOrders();
       updateAnalyticsStats();
@@ -906,7 +967,7 @@
             <button onclick="deleteApp('${appObj.id}')" style="background:#ef4444; color:white; border:none; padding:2px 6px; border-radius:3px; font-size:11px; cursor:pointer;">ลบแอป</button>
           </div>`;
         appObj.items.forEach(item => {
-          const stockCount = item.stockCodes?.length || 0;
+          const stockCount = item.stockCount || 0;
           const lowStockAlert = stockCount <= 2 ? `<span style="color:red; font-weight:bold;">⚠️ สต็อกต่ำ</span>` : '';
           html += `<div style="background:#fff; border:1px solid var(--border-color); padding:8px; border-radius:6px; margin-top:6px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
             <div>
@@ -969,14 +1030,16 @@
 
       const stockCodes = stockRaw ? stockRaw.split("\n").map(s => s.trim()).filter(s => s) : [];
 
-      const prodData = { name, appId, type, price, agentPrice, details, stockCodes, isHot, isActive };
-
+      const prodData = { name, appId, type, price, agentPrice, details, stockCount: stockCodes.length, isHot, isActive };
+      let pid = prodId;
       if (prodId) {
         await updateDoc(doc(db, "products", prodId), prodData);
       } else {
         prodData.createdAt = new Date();
-        await addDoc(collection(db, "products"), prodData);
+        pid = (await addDoc(collection(db, "products"), prodData)).id;
       }
+      await setDoc(doc(db, "stock", pid), { codes: stockCodes });
+
       alert("บันทึกสินค้าสำเร็จ!");
       document.getElementById("prod-modal").style.display = "none";
       loadAdminProducts();
@@ -995,7 +1058,8 @@
         document.getElementById("p-price").value = d.price;
         document.getElementById("p-agent-price").value = d.agentPrice;
         document.getElementById("p-details").value = d.details || "";
-        document.getElementById("p-stock").value = (d.stockCodes || []).join("\n");
+        const st = await getDoc(doc(db, "stock", id));
+        document.getElementById("p-stock").value = (st.exists() ? st.data().codes : []).join("\n");
         document.getElementById("p-is-hot").checked = d.isHot || false;
         document.getElementById("p-is-active").checked = d.isActive !== false;
         document.getElementById("prod-modal").style.display = "flex";
@@ -1025,7 +1089,7 @@
         const u = docSnap.data();
         const userId = docSnap.id;
         container.innerHTML += `<div style="background:var(--bg-color); border:1px solid var(--border-color); padding:8px; border-radius:6px; margin-bottom:6px; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span><strong>${u.username}</strong> | สิทธิ์: <b>${u.role}</b></span>
+          <span><strong>${esc(u.username)}</strong> | สิทธิ์: <b>${u.role}</b></span>
           <div>
             <button onclick="toggleAgentRole('${userId}', '${u.role}')" style="background:#4f46e5; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px; margin-right:4px;">สลับตัวแทน</button>
             <button onclick="deleteUser('${userId}')" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">ลบ</button>
@@ -1086,7 +1150,7 @@
             </div>`;
 
         appObj.items.forEach(item => {
-          const stockCount = item.stockCodes?.length || 0;
+          const stockCount = item.stockCount || 0;
           const isOutOfStock = stockCount <= 0;
           const price = isAgent ? (item.agentPrice || item.price) : item.price;
 
@@ -1170,32 +1234,48 @@
         cartModal.style.display = "none";
         updateAnalyticsStats();
       };
-      reader.readAsDataURL(slipFile);
+      fileToBase64(slipFile).then(data => reader.onload({ target: { result: data } }));
     });
 
-    // สลับโหมด เข้าสู่ระบบ / สมัครสมาชิก (แสดงปุ่มสุ่มชื่อเฉพาะตอนสมัคร)
+    // สลับโหมด เข้าสู่ระบบ / สมัครสมาชิก (แสดง/ซ่อน ปุ่มสุ่มชื่อ และปุ่มลืมรหัสผ่าน)
     document.getElementById("switch-mode-btn").addEventListener("click", () => {
       isSignUpMode = !isSignUpMode;
       document.getElementById("modal-title").textContent = isSignUpMode ? "สมัครสมาชิก" : "เข้าสู่ระบบ";
       document.getElementById("modal-submit-btn").textContent = isSignUpMode ? "ยืนยันสมัครสมาชิก" : "เข้าสู่ระบบ";
       document.getElementById("switch-mode-btn").textContent = isSignUpMode ? "มีบัญชีอยู่แล้ว? เข้าสู่ระบบ" : "ยังไม่มีบัญชี? สมัครสมาชิก";
       document.getElementById("random-name-btn").style.display = isSignUpMode ? "block" : "none";
+      document.getElementById("forgot-pass-btn").style.display = isSignUpMode ? "none" : "block";
     });
 
+    // 🔑 ระบบล็อกอิน / สมัครสมาชิกอัจฉริยะ (ค้นหารหัสสมาชิกต่อท้ายอัตโนมัติ)
     document.getElementById("auth-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const raw = document.getElementById("auth-username").value.trim();
       const pass = document.getElementById("auth-password").value;
       try {
         if (isSignUpMode) {
-          const snap = await getDocs(collection(db, "users"));
-          const memberNo = snap.size + 1;
+          const usersSnap = await getDocs(collection(db, "users"));
+          const memberNo = usersSnap.size + 1;
           const finalUsername = `${raw}_#${String(memberNo).padStart(3, '0')}`;
           const cred = await createUserWithEmailAndPassword(auth, `${encodeURIComponent(finalUsername).toLowerCase()}@jokjing.shop`, pass);
           await setDoc(doc(db, "users", cred.user.uid), { username: finalUsername, role: "customer", createdAt: new Date() });
           alert("สมัครสมาชิกสำเร็จ!");
         } else {
-          await signInWithEmailAndPassword(auth, raw.includes("@") ? raw : `${encodeURIComponent(raw).toLowerCase()}@jokjing.shop`, pass);
+          let loginEmail = raw.includes("@") ? raw : `${encodeURIComponent(raw).toLowerCase()}@jokjing.shop`;
+          if (!raw.includes("@") && !raw.includes("_#")) {
+            const usersSnap = await getDocs(collection(db, "users"));
+            let foundFullUsername = "";
+            usersSnap.forEach(d => {
+              const uData = d.data();
+              if (uData.username && uData.username.toLowerCase().startsWith(raw.toLowerCase() + "_#")) {
+                foundFullUsername = uData.username;
+              }
+            });
+            if (foundFullUsername) {
+              loginEmail = `${encodeURIComponent(foundFullUsername).toLowerCase()}@jokjing.shop`;
+            }
+          }
+          await signInWithEmailAndPassword(auth, loginEmail, pass);
           alert("เข้าสู่ระบบสำเร็จ!");
         }
         authModal.style.display = "none";
