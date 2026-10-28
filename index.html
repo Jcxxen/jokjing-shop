@@ -168,7 +168,7 @@
     👤
   </div>
 
-  <!-- Modal Auth: เข้าสู่ระบบ / สมัครสมาชิก ผ่านอีเมลอย่างเดียว -->
+  <!-- Modal Auth: เข้าสู่ระบบ / สมัครสมาชิก ผ่านอีเมล -->
   <div class="modal" id="auth-modal">
     <div class="modal-content">
       <span class="close-btn" id="auth-modal-close">&times;</span>
@@ -179,8 +179,8 @@
           <input type="email" id="auth-email" required placeholder="example@email.com">
         </div>
         <div class="form-group" style="margin-bottom:6px;">
-          <label>รหัสผ่าน (อย่างน้อย 4 ตัวอักษร)</label>
-          <input type="password" id="auth-password" required minlength="4" placeholder="กรอกรหัสผ่าน 4 ตัวขึ้นไป">
+          <label>รหัสผ่าน (อย่างน้อย 6 ตัวอักษร)</label>
+          <input type="password" id="auth-password" required minlength="6" placeholder="กรอกรหัสผ่าน 6 ตัวขึ้นไป">
           <div>
             <span class="forgot-link-sm" id="forgot-pass-btn" onclick="forgotPassword()">🔑 ลืมรหัสผ่าน?</span>
           </div>
@@ -227,16 +227,16 @@
         </div>
       </div>
 
-      <!-- เปลี่ยนรหัสผ่าน 4 ตัว -->
+      <!-- เปลี่ยนรหัสผ่าน -->
       <button class="collapsible-btn" onclick="togglePassCollapsible()">
-        <span>🔑 เปลี่ยนรหัสผ่าน 4 ตัว</span>
+        <span>🔑 เปลี่ยนรหัสผ่าน</span>
         <span id="pass-arrow">▼</span>
       </button>
       <div class="collapsible-content" id="pass-collapsible-box">
         <form id="change-pass-form">
           <div class="form-group">
-            <label>รหัสผ่านใหม่ (อย่างน้อย 4 ตัว):</label>
-            <input type="password" id="new-password-input" required minlength="4" placeholder="ตั้งรหัสผ่านใหม่ 4 ตัวขึ้นไป">
+            <label>รหัสผ่านใหม่ (อย่างน้อย 6 ตัว):</label>
+            <input type="password" id="new-password-input" required minlength="6" placeholder="ตั้งรหัสผ่านใหม่ 6 ตัวขึ้นไป">
           </div>
           <button type="submit" class="btn-submit" style="background:#4f46e5;">🔒 บันทึกรหัสผ่านใหม่</button>
         </form>
@@ -331,7 +331,7 @@
       }
     });
 
-    // ระบบเลือกรูปภาพและเปิดหน้าต่างครอปอิสระ
+    // ระบบเลือกรูปภาพและเปิดหน้าต่างครอปอิสระตามกรอบที่เอิร์นต้องการ
     document.getElementById("edit-avatar-file").addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -446,7 +446,7 @@
     document.getElementById("change-pass-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const newPass = document.getElementById("new-password-input").value;
-      if (newPass.length < 4) { alert("รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร"); return; }
+      if (newPass.length < 6) { alert("รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร"); return; }
       try {
         await updatePassword(auth.currentUser, newPass);
         currentRawPassword = newPass;
@@ -487,7 +487,7 @@
       const email = document.getElementById("auth-email").value.trim();
       const pass = document.getElementById("auth-password").value;
 
-      if (pass.length < 4) { alert("รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร"); return; }
+      if (pass.length < 6) { alert("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษรตามมาตรฐานระบบ"); return; }
 
       try {
         if (isSignUpMode) {
@@ -507,7 +507,15 @@
         }
         authModal.style.display = "none";
       } catch (err) { 
-        alert("เกิดข้อผิดพลาด: " + (err.code === 'auth/email-already-in-use' ? 'อีเมลนี้มีผู้ใช้งานแล้ว' : 'อีเมลหรือรหัสผ่านไม่ถูกต้อง')); 
+        let errorMsg = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+        if (err.code === 'auth/email-already-in-use') {
+          errorMsg = "อีเมลนี้ถูกใช้งานแล้ว กรุณาเข้าสู่ระบบ";
+        } else if (err.code === 'auth/weak-password') {
+          errorMsg = "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษรขึ้นไป";
+        } else if (err.code === 'auth/invalid-email') {
+          errorMsg = "รูปแบบอีเมลไม่ถูกต้อง";
+        }
+        alert("เกิดข้อผิดพลาด: " + errorMsg); 
       }
     });
   </script>
