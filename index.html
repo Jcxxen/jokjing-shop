@@ -785,10 +785,10 @@
         box.innerHTML += `
           <div class="review-item">
             <div style="display:flex; justify-content:space-between;">
-              <strong>${r.username}</strong>
+              <strong>${esc(r.username)}</strong>
               <span class="star-rating">${stars}</span>
             </div>
-            <div style="margin-top:4px; color:#475569;">${r.comment}</div>
+            <div style="margin-top:4px; color:#475569;">${esc(r.comment)}</div>
           </div>`;
       });
     }
@@ -840,10 +840,10 @@
       snapshot.forEach(docSnap => {
         const order = docSnap.data();
         const orderId = docSnap.id;
-        let itemsText = order.items.map(i => `${i.productName} - ฿${i.price}`).join("<br>");
+        let itemsText = order.items.map(i => `${esc(i.productName)} - ฿${Number(i.price)}`).join("<br>");
         container.innerHTML += `
           <div class="admin-order-card">
-            <p><strong>ผู้ซื้อ:</strong> ${order.username} · <b style="color:#ef4444;">฿${order.totalAmount}</b></p>
+            <p><strong>ผู้ซื้อ:</strong> ${esc(order.username)} · <b style="color:#ef4444;">฿${order.totalAmount}</b></p>
             <p><strong>สินค้า:</strong><br>${itemsText}</p>
             <p><strong>สถานะ:</strong> ${order.status} | <a href="${order.slipUrl}" target="_blank" style="color:#4f46e5; font-weight:bold;">🔍 ดูสลิป</a></p>
             ${order.status === 'pending' ? `
