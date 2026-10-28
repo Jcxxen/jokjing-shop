@@ -1188,10 +1188,9 @@
       const raw = document.getElementById("auth-username").value.trim();
       const pass = document.getElementById("auth-password").value;
       try {
-        if (isSignUpMode) {
-          const snap = await getDocs(collection(db, "users"));
-          const memberNo = snap.size + 1;
-          const finalUsername = `${raw}_#${String(memberNo).padStart(3, '0')}`;
+        if (isSignUpMode)
+          const finalUsername = `${raw}_#${Math.floor(1000 + Math.random() * 9000)}`;
+        {
           const cred = await createUserWithEmailAndPassword(auth, `${encodeURIComponent(finalUsername).toLowerCase()}@jokjing.shop`, pass);
           await setDoc(doc(db, "users", cred.user.uid), { username: finalUsername, role: "customer", createdAt: new Date() });
           alert("สมัครสมาชิกสำเร็จ!");
