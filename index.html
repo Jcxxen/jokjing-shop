@@ -62,7 +62,7 @@
 
     /* Stats Bar */
     .stats-bar {
-      max-width: 600px; margin: 0 auto 15px auto; padding: 0 15px;
+      max-width: 600px; margin: 0 auto 10px auto; padding: 0 15px;
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;
     }
     .stat-card {
@@ -70,6 +70,16 @@
       padding: 8px 4px; border-radius: 8px; font-size: 11px;
     }
     .stat-card b { display: block; font-size: 14px; color: #ef4444; }
+
+    /* Search Box */
+    .search-box-container {
+      max-width: 600px; margin: 0 auto 15px auto; padding: 0 15px;
+    }
+    .search-input {
+      width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color);
+      font-size: 14px; background: var(--card-bg); color: var(--text-color);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
 
     .drawer {
       position: fixed; top: 0; left: -280px; width: 260px; height: 100%;
@@ -166,6 +176,9 @@
     .admin-order-card { background: var(--bg-color); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
     .qr-img { width: 160px; height: 160px; margin: 10px auto; display: block; border: 2px solid var(--border-color); border-radius: 8px; object-fit: cover; }
     .img-preview { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-color); margin-top: 5px; display: none; }
+
+    .review-item { background: var(--bg-color); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 12px; }
+    .star-rating { color: #f59e0b; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -203,6 +216,11 @@
     <div class="stat-card">สต็อกเหลือ<b id="stat-stock">0</b></div>
   </div>
 
+  <!-- Search Filter -->
+  <div class="search-box-container">
+    <input type="text" id="search-input" class="search-input" placeholder="🔍 ค้นหาแอป หรือชื่อสินค้าที่คุณต้องการ..." onkeyup="filterProducts()">
+  </div>
+
   <!-- Drawer Menu -->
   <div class="overlay" id="menu-overlay"></div>
   <div class="drawer" id="side-drawer">
@@ -212,12 +230,14 @@
     </div>
     <ul class="drawer-menu">
       <li><a onclick="closeDrawer()">🏠 หน้าหลัก</a></li>
+      <li><a onclick="openMyOrdersModal(); closeDrawer();">📜 ประวัติสั่งซื้อ & คลังรหัสของฉัน</a></li>
+      <li><a onclick="openReviewsModal(); closeDrawer();">⭐ รีวิวร้านค้า</a></li>
       <li><a onclick="openAdminModal(); closeDrawer();" id="admin-menu-link" style="color:#ef4444; font-weight:bold; display:none;">🛠️ แผงควบคุม (แอดมิน)</a></li>
       <li><a id="drawer-line-link" href="https://line.me/R/ti/p/@781wfctk" target="_blank" onclick="closeDrawer()">💬 ติดต่อแอดมิน (LINE)</a></li>
     </ul>
   </div>
 
-  <!-- Product Container (Grouped by Apps) -->
+  <!-- Product Container -->
   <div class="container">
     <div id="list">
       <div class="loading">กำลังโหลดสินค้า...</div>
@@ -253,7 +273,7 @@
   <div class="modal" id="cart-modal">
     <div class="modal-content">
       <span class="close-btn" id="cart-modal-close">&times;</span>
-      <h3>🛒 ตะกร้าสินค้า & ชำระเงิน</h3>
+      <h3>🛒 ตะกร้าสินค้า & ชำระเงินสด</h3>
       <div id="cart-items-list" style="margin-bottom:10px;"></div>
       <h4 style="display:flex; justify-content:space-between;"><span>ยอดรวม:</span><span style="color:#ef4444;" id="cart-total-price">฿0</span></h4>
       
@@ -261,33 +281,66 @@
         <h4 style="margin:0 0 5px 0; font-size:13px;" id="payment-acc-title">ช่องทางโอนเงิน</h4>
         <img id="payment-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=PromptPayJokjing" class="qr-img" alt="QR">
         <div class="form-group" style="text-align:left; margin-top:8px;">
-          <label>แนบสลิปการโอนเงิน:</label>
+          <label>แนบสลิปการโอนเงินโอนสด:</label>
           <input type="file" id="slip-file-input" accept="image/*" required>
         </div>
       </div>
-      <button class="btn-submit" id="submit-order-btn">🚀 ยืนยันการชำระเงิน</button>
+      <button class="btn-submit" id="submit-order-btn">🚀 ยืนยันชำระเงินแนบสลิป</button>
     </div>
   </div>
 
-  <!-- 🛠️ Admin Dashboard Modal (โครงสร้างละเอียดตามแบบตัวอย่าง) -->
+  <!-- 📜 Modal: ประวัติสั่งซื้อ & คลังรหัสของฉัน -->
+  <div class="modal" id="my-orders-modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="document.getElementById('my-orders-modal').style.display='none'">&times;</span>
+      <h3>📜 ประวัติสั่งซื้อ & คลังรหัสของฉัน</h3>
+      <div id="my-orders-list"><div class="loading">กำลังโหลดประวัติ...</div></div>
+    </div>
+  </div>
+
+  <!-- ⭐ Modal: รีวิวร้านค้า -->
+  <div class="modal" id="reviews-modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="document.getElementById('reviews-modal').style.display='none'">&times;</span>
+      <h3>⭐ รีวิวจากลูกค้า</h3>
+      <form id="add-review-form" style="margin-bottom:15px; background:var(--bg-color); padding:10px; border-radius:8px; border:1px solid var(--border-color);">
+        <div class="form-group">
+          <label>ให้คะแนนดาว:</label>
+          <select id="rev-rating">
+            <option value="5">⭐⭐⭐⭐⭐ (5 ดาว)</option>
+            <option value="4">⭐⭐⭐⭐ (4 ดาว)</option>
+            <option value="3">⭐⭐⭐ (3 ดาว)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ข้อความรีวิว:</label>
+          <textarea id="rev-comment" rows="2" required placeholder="บริการไว รหัสใช้ได้จริง..."></textarea>
+        </div>
+        <button type="submit" class="btn-submit" style="margin:0;">✍️ ส่งรีวิว</button>
+      </form>
+      <div id="reviews-list-box"><div class="loading">กำลังโหลดรีวิว...</div></div>
+    </div>
+  </div>
+
+  <!-- 🛠️ Admin Dashboard Modal -->
   <div class="modal" id="admin-modal">
     <div class="modal-content" style="max-width: 560px;">
       <span class="close-btn" id="admin-modal-close">&times;</span>
       <h3>👑 แผงควบคุมเจ้าของร้าน</h3>
       
       <div class="admin-tabs">
-        <button class="admin-tab-btn active" onclick="switchAdminTab('orders', this)">🧾 เติมเงิน/ออเดอร์</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab('products', this)">📦 สินค้า</button>
+        <button class="admin-tab-btn active" onclick="switchAdminTab('orders', this)">🧾 ออเดอร์/สลิป</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('products', this)">📦 สินค้า/สต็อก</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('users', this)">👥 สมาชิก</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('shop-set', this)">⚙️ ตั้งค่าร้าน</button>
       </div>
 
-      <!-- Tab 1: เติมเงิน / ออเดอร์ & ปุ่มคืนเงินให้ลูกค้า -->
+      <!-- Tab 1: เติมเงิน / ออเดอร์ -->
       <div class="admin-sec active" id="admin-sec-orders">
         <div id="admin-orders-container"><div class="loading">กำลังโหลดคำขอ...</div></div>
       </div>
 
-      <!-- Tab 2: จัดการสินค้า (แยกหมวดแอป + แพ็กเกจย่อย + สต็อกบรรทัดต่อบรรทัดแบบรูปภาพ) -->
+      <!-- Tab 2: จัดการสินค้า -->
       <div class="admin-sec" id="admin-sec-products">
         <div style="display:flex; gap:8px; margin-bottom:12px;">
           <button onclick="openAppModal()" class="btn-submit" style="margin:0; background:#4f46e5;">+ เพิ่มแอป</button>
@@ -296,13 +349,12 @@
         <div id="admin-products-list-box"><div class="loading">กำลังโหลดรายการ...</div></div>
       </div>
 
-      <!-- Tab 3: สมาชิก & จัดการตัวแทน / ยอดเงิน / ระงับบัญชี -->
+      <!-- Tab 3: สมาชิก -->
       <div class="admin-sec" id="admin-sec-users">
-        <div style="margin-bottom:10px;"><button onclick="openUserModal()" class="btn-submit" style="margin:0;">+ เพิ่มสมาชิก</button></div>
         <div id="admin-users-container"><div class="loading">กำลังโหลดสมาชิก...</div></div>
       </div>
 
-      <!-- Tab 4: ตั้งค่าร้าน (ชื่อร้าน, ข้อความประกาศ, LINE ID, ธนาคาร, เลขบัญชี, ชื่อบัญชี, เวลาทำการ, กฎของร้าน, โลโก้, QR Code) -->
+      <!-- Tab 4: ตั้งค่าร้าน -->
       <div class="admin-sec" id="admin-sec-shop-set">
         <form id="shop-settings-form">
           <div class="form-group"><label>ชื่อร้าน</label><input type="text" id="set-shop-name" required></div>
@@ -329,11 +381,11 @@
     </div>
   </div>
 
-  <!-- Sub Modal สำหรับเพิ่ม/แก้ไขแอป -->
+  <!-- Sub Modals -->
   <div class="modal" id="app-modal">
     <div class="modal-content" style="max-width: 400px;">
       <span class="close-btn" onclick="document.getElementById('app-modal').style.display='none'">&times;</span>
-      <h3 id="app-modal-title">เพิ่มแอปหมวดหมู่</h3>
+      <h3>เพิ่มแอปหมวดหมู่</h3>
       <form id="app-form">
         <div class="form-group"><label>ชื่อแอป</label><input type="text" id="app-modal-name" required></div>
         <div class="form-group">
@@ -347,11 +399,10 @@
     </div>
   </div>
 
-  <!-- Sub Modal สำหรับเพิ่ม/แก้ไขสินค้าแพ็กเกจย่อย -->
   <div class="modal" id="prod-modal">
     <div class="modal-content" style="max-width: 450px;">
       <span class="close-btn" onclick="document.getElementById('prod-modal').style.display='none'">&times;</span>
-      <h3 id="prod-modal-title">เพิ่ม/แก้ไขสินค้า</h3>
+      <h3>เพิ่ม/แก้ไขสินค้า</h3>
       <form id="prod-form">
         <input type="hidden" id="edit-prod-id">
         <div class="form-group"><label>ชื่อสินค้า</label><input type="text" id="p-name" required placeholder="เช่น Netflix มือถือ 1 วัน"></div>
@@ -363,7 +414,7 @@
         <div class="form-group"><label>ราคา (฿)</label><input type="number" id="p-price" required></div>
         <div class="form-group"><label>ราคาตัวแทน (฿)</label><input type="number" id="p-agent-price" required></div>
         <div class="form-group"><label>รายละเอียดที่ลูกค้าเห็น</label><textarea id="p-details" rows="2" placeholder="เมลปิด นำเมลและรหัสผ่านไปล็อกอินได้เลย"></textarea></div>
-        <div class="form-group"><label>สต็อก: บัญชี 1 บรรทัดต่อ 1 ชิ้น (จำนวนชิ้นนับจากบรรทัด)</label><textarea id="p-stock" rows="4" placeholder="acc1@mail.com|pass1&#10;acc2@mail.com|pass2"></textarea></div>
+        <div class="form-group"><label>สต็อก: บัญชี 1 บรรทัดต่อ 1 ชิ้น</label><textarea id="p-stock" rows="4" placeholder="acc1@mail.com|pass1&#10;acc2@mail.com|pass2"></textarea></div>
         <div class="form-group" style="display:flex; align-items:center; gap:8px;">
           <input type="checkbox" id="p-is-hot" style="width:auto;"> <label for="p-is-hot" style="margin:0;">ขึ้นเป็นสินค้าขายดี (HOT)</label>
         </div>
@@ -377,7 +428,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc, addDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc, addDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -396,6 +447,7 @@
     let currentUserData = null;
     let isSignUpMode = false;
     let cart = [];
+    let allAppsAndProductsCache = [];
     let shopConfig = {
       name: "ร้านจกจิ๊ง",
       warning: "⚠️ แจ้งเตือน: เช็คสินค้าก่อนเติมเงิน เติมเงินผิดหน้าแรก ไม่คืนเงินทุกกรณี",
@@ -569,6 +621,75 @@
       } catch (e) { console.error(e); }
     }
 
+    // --- 📜 คลังรหัส & ประวัติการสั่งซื้อของฉัน ---
+    window.openMyOrdersModal = async function() {
+      if (!auth.currentUser) { alert("กรุณาเข้าสู่ระบบก่อนดูประวัติสั่งซื้อ"); authModal.style.display = "flex"; return; }
+      const modal = document.getElementById("my-orders-modal");
+      const container = document.getElementById("my-orders-list");
+      modal.style.display = "flex";
+      container.innerHTML = "<div class='loading'>กำลังโหลดประวัติ...</div>";
+
+      const q = query(collection(db, "orders"), where("userId", "==", auth.currentUser.uid));
+      const snap = await getDocs(q);
+
+      if (snap.empty) { container.innerHTML = "<p style='text-align:center;'>ยังไม่มีประวัติการสั่งซื้อ</p>"; return; }
+      container.innerHTML = "";
+      snap.forEach(d => {
+        const o = d.data();
+        let codeStr = o.deliveredCode ? `<div style="background:#fff; border:1px solid #22c55e; padding:6px; border-radius:4px; font-family:monospace; margin-top:5px; color:#15803d;">🔑 รหัสที่ได้รับ: <b>${o.deliveredCode}</b></div>` : '<span style="color:orange;">⏳ รออนุมัติรหัส</span>';
+        container.innerHTML += `
+          <div style="background:var(--bg-color); border:1px solid var(--border-color); padding:10px; border-radius:8px; margin-bottom:8px; font-size:12px;">
+            <div><strong>รายการ:</strong> ${o.items?.map(i => i.productName).join(', ')} (฿${o.totalAmount})</div>
+            <div><strong>สถานะ:</strong> ${o.status === 'approved' ? '<span style="color:green;">อนุมัติแล้ว</span>' : o.status}</div>
+            ${codeStr}
+            ${o.status === 'approved' ? `<button onclick="window.open('https://line.me/R/ti/p/${shopConfig.lineId}')" style="background:#f97316; color:white; border:none; padding:4px 8px; border-radius:4px; margin-top:6px; cursor:pointer; font-size:11px;">⚠️ แจ้งปัญหา / ขอเคลม</button>` : ''}
+          </div>`;
+      });
+    };
+
+    // --- ⭐ ระบบรีวิวร้านค้า ---
+    window.openReviewsModal = async function() {
+      document.getElementById("reviews-modal").style.display = "flex";
+      loadReviews();
+    };
+
+    async function loadReviews() {
+      const box = document.getElementById("reviews-list-box");
+      box.innerHTML = "<div class='loading'>กำลังโหลด...</div>";
+      const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
+      const snap = await getDocs(q);
+      if (snap.empty) { box.innerHTML = "<p style='text-align:center;'>ยังไม่มีรีวิว เป็นคนแรกที่รีวิวเลย!</p>"; return; }
+      box.innerHTML = "";
+      snap.forEach(d => {
+        const r = d.data();
+        let stars = "⭐".repeat(r.rating || 5);
+        box.innerHTML += `
+          <div class="review-item">
+            <div style="display:flex; justify-content:space-between;">
+              <strong>${r.username}</strong>
+              <span class="star-rating">${stars}</span>
+            </div>
+            <div style="margin-top:4px; color:#475569;">${r.comment}</div>
+          </div>`;
+      });
+    }
+
+    document.getElementById("add-review-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!auth.currentUser) { alert("กรุณาเข้าสู่ระบบก่อนเขียนรีวิว"); return; }
+      const rating = Number(document.getElementById("rev-rating").value);
+      const comment = document.getElementById("rev-comment").value.trim();
+
+      await addDoc(collection(db, "reviews"), {
+        username: currentUserData ? currentUserData.username : "สมาชิก",
+        rating, comment, createdAt: new Date()
+      });
+      alert("ขอบคุณสำหรับรีวิวครับ!");
+      document.getElementById("rev-comment").value = "";
+      loadReviews();
+    });
+
+    // --- 🛠️ Admin Dashboard ---
     window.openAdminModal = function() {
       if (!currentUserData || currentUserData.role !== "admin") {
         alert("เฉพาะเจ้าของร้านเท่านั้น");
@@ -590,7 +711,6 @@
       if (tabName === 'users') loadAdminUsers();
     };
 
-    // โหลดหน้าจัดการคำขอเติมเงิน/ออเดอร์ พร้อมปุ่มคืนเงินให้ลูกค้า
     async function loadAdminOrders() {
       const container = document.getElementById("admin-orders-container");
       container.innerHTML = "<div class='loading'>กำลังโหลด...</div>";
@@ -646,7 +766,6 @@
       loadAdminOrders();
     };
 
-    // โหลดข้อมูลสินค้าและแอปในหลังบ้าน
     async function loadAdminProducts() {
       const box = document.getElementById("admin-products-list-box");
       box.innerHTML = "<div class='loading'>กำลังโหลด...</div>";
@@ -670,9 +789,10 @@
           </div>`;
         appObj.items.forEach(item => {
           const stockCount = item.stockCodes?.length || 0;
+          const lowStockAlert = stockCount <= 2 ? `<span style="color:red; font-weight:bold;">⚠️ สต็อกต่ำ</span>` : '';
           html += `<div style="background:#fff; border:1px solid var(--border-color); padding:8px; border-radius:6px; margin-top:6px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
             <div>
-              <b>${item.name}</b> ${item.isHot ? '<span class="hot-badge">HOT</span>' : ''}<br>
+              <b>${item.name}</b> ${item.isHot ? '<span class="hot-badge">HOT</span>' : ''} ${lowStockAlert}<br>
               <span style="color:#64748b;">${item.type || 'ทั่วไป'} · ฿${item.price} (ตัวแทน ฿${item.agentPrice}) · สต็อก ${stockCount}</span>
             </div>
             <div>
@@ -685,7 +805,6 @@
       }
       box.innerHTML = html || "<p style='text-align:center;'>ยังไม่มีแอปหรือสินค้า</p>";
       
-      // อัปเดต dropdown เลือกแอปใน Modal สินค้า
       const appSelect = document.getElementById("p-app-select");
       appSelect.innerHTML = "";
       appSnap.forEach(d => {
@@ -779,7 +898,6 @@
       }
     };
 
-    // โหลดรายชื่อสมาชิก
     async function loadAdminUsers() {
       const container = document.getElementById("admin-users-container");
       container.innerHTML = "<div class='loading'>กำลังโหลด...</div>";
@@ -813,9 +931,8 @@
       }
     };
 
-    // โหลดหน้าร้านฝั่งผู้ใช้งานหลัก
+    // --- หน้าร้านและระบบค้นหา ---
     async function loadStoreData() {
-      const listDiv = document.getElementById("list");
       try {
         const appSnap = await getDocs(collection(db, "apps"));
         const prodSnap = await getDocs(collection(db, "products"));
@@ -827,48 +944,73 @@
           if (p.isActive !== false && appsMap[p.appId]) appsMap[p.appId].items.push(p);
         });
 
-        let html = "";
-        const isAgent = currentUserData && currentUserData.role === "agent";
+        allAppsAndProductsCache = Object.values(appsMap);
+        renderStoreUI(allAppsAndProductsCache);
+      } catch (e) { document.getElementById("list").innerHTML = "<div class='loading'>โหลดไม่สำเร็จ</div>"; }
+    }
 
-        for (let appId in appsMap) {
-          const appObj = appsMap[appId];
-          if (appObj.items.length === 0) continue;
+    function renderStoreUI(appsList) {
+      const listDiv = document.getElementById("list");
+      let html = "";
+      const isAgent = currentUserData && currentUserData.role === "agent";
+
+      appsList.forEach(appObj => {
+        if (appObj.items.length === 0) return;
+
+        html += `
+          <div class="app-group-card">
+            <div class="app-header-row">
+              <img src="${appObj.icon || 'https://via.placeholder.com/45'}" class="app-icon-img" alt="Icon">
+              <div class="app-title-area">
+                <h3>${appObj.name}</h3>
+                <div class="app-desc">${appObj.desc || ''}</div>
+              </div>
+            </div>`;
+
+        appObj.items.forEach(item => {
+          const stockCount = item.stockCodes?.length || 0;
+          const isOutOfStock = stockCount <= 0;
+          const price = isAgent ? (item.agentPrice || item.price) : item.price;
 
           html += `
-            <div class="app-group-card">
-              <div class="app-header-row">
-                <img src="${appObj.icon || 'https://via.placeholder.com/45'}" class="app-icon-img" alt="Icon">
-                <div class="app-title-area">
-                  <h3>${appObj.name}</h3>
-                  <div class="app-desc">${appObj.desc || ''}</div>
-                </div>
-              </div>`;
+            <div class="sub-item-row">
+              <div class="sub-item-info">
+                <h4>${item.name} ${item.isHot ? '<span class="hot-badge">HOT</span>' : ''}</h4>
+                <div class="sub-item-meta">${item.type || 'ทั่วไป'} · สต็อก: ${isOutOfStock ? '<span style="color:red;">สินค้าหมด</span>' : stockCount}</div>
+              </div>
+              <div class="sub-item-action">
+                <p class="price-text">฿${price}</p>
+                ${isAgent ? `<span class="agent-price-text">ราคาตัวแทน</span>` : ''}
+                <button class="buy-btn" onclick="addToCart('${item.id}', '${item.name}', ${price})" ${isOutOfStock ? 'disabled style="background:gray;"' : ''}>${isOutOfStock ? 'หมด' : '🛒 สั่งซื้อ'}</button>
+              </div>
+            </div>`;
+        });
 
-          appObj.items.forEach(item => {
-            const stockCount = item.stockCodes?.length || 0;
-            const isOutOfStock = stockCount <= 0;
-            const price = isAgent ? (item.agentPrice || item.price) : item.price;
+        html += `</div>`;
+      });
 
-            html += `
-              <div class="sub-item-row">
-                <div class="sub-item-info">
-                  <h4>${item.name} ${item.isHot ? '<span class="hot-badge">HOT</span>' : ''}</h4>
-                  <div class="sub-item-meta">${item.type || 'ทั่วไป'} · สต็อก: ${isOutOfStock ? '<span style="color:red;">สินค้าหมด</span>' : stockCount}</div>
-                </div>
-                <div class="sub-item-action">
-                  <p class="price-text">฿${price}</p>
-                  ${isAgent ? `<span class="agent-price-text">ราคาตัวแทน</span>` : ''}
-                  <button class="buy-btn" onclick="addToCart('${item.id}', '${item.name}', ${price})" ${isOutOfStock ? 'disabled style="background:gray;"' : ''}>${isOutOfStock ? 'หมด' : '🛒 สั่งซื้อ'}</button>
-                </div>
-              </div>`;
-          });
-
-          html += `</div>`;
-        }
-
-        listDiv.innerHTML = html || "<div class='loading'>ยังไม่มีสินค้าพร้อมขาย</div>";
-      } catch (e) { listDiv.innerHTML = "<div class='loading'>โหลดไม่สำเร็จ</div>"; }
+      listDiv.innerHTML = html || "<div class='loading'>ไม่พบสินค้าที่คุณค้นหา</div>";
     }
+
+    window.filterProducts = function() {
+      const queryText = document.getElementById("search-input").value.toLowerCase().trim();
+      if (!queryText) {
+        renderStoreUI(allAppsAndProductsCache);
+        return;
+      }
+
+      const filtered = allAppsAndProductsCache.map(appObj => {
+        const matchedItems = appObj.items.filter(i => i.name.toLowerCase().includes(queryText));
+        if (appObj.name.toLowerCase().includes(queryText)) {
+          return appObj;
+        } else if (matchedItems.length > 0) {
+          return { ...appObj, items: matchedItems };
+        }
+        return null;
+      }).filter(a => a !== null);
+
+      renderStoreUI(filtered);
+    };
 
     window.addToCart = function(productId, productName, price) {
       cart.push({ productId, productName, price });
@@ -904,7 +1046,7 @@
           status: "pending",
           createdAt: new Date()
         });
-        alert("สั่งซื้อสำเร็จ! รอแอดมินตรวจสอบสลิป");
+        alert("สั่งซื้อสำเร็จ! รอแอดมินตรวจสอบสลิปแนบเพื่อรับรหัส");
         cart = [];
         document.getElementById("cart-count").textContent = 0;
         cartModal.style.display = "none";
