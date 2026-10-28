@@ -199,7 +199,7 @@
 
   <!-- 🚨 Warning Banner -->
   <div class="warning-banner" id="warning-banner-text">
-    ⚠️ แจ้งเตือน: เช็คสินค้าก่อนเติมเงิน เติมเงินผิดหน้าแรก ไม่คืนเงินทุกกรณี
+    ⚠️ แจ้งเตือน: เช็คสินค้าก่อนโอน ไม่คืนเงินทุกกรณี มีปัญหารอแก้ไขภายใน 24 ชม.
   </div>
 
   <!-- 3-Step Guide -->
@@ -230,7 +230,7 @@
     </div>
     <ul class="drawer-menu">
       <li><a onclick="closeDrawer()">🏠 หน้าหลัก</a></li>
-      <li><a onclick="openMyOrdersModal(); closeDrawer();">📜 ประวัติสั่งซื้อ & คลังรหัสของฉัน</a></li>
+      <li><a onclick="openMyOrdersModal(); closeDrawer();">📜 ประวัติสั่งซื้อ & ออเดอร์ของฉัน</a></li>
       <li><a onclick="openReviewsModal(); closeDrawer();">⭐ รีวิวร้านค้า</a></li>
       <li><a onclick="openAdminModal(); closeDrawer();" id="admin-menu-link" style="color:#ef4444; font-weight:bold; display:none;">🛠️ แผงควบคุม (แอดมิน)</a></li>
       <li><a id="drawer-line-link" href="https://line.me/R/ti/p/@781wfctk" target="_blank" onclick="closeDrawer()">💬 ติดต่อแอดมิน (LINE)</a></li>
@@ -289,11 +289,11 @@
     </div>
   </div>
 
-  <!-- 📜 Modal: ประวัติสั่งซื้อ & คลังรหัสของฉัน -->
+  <!-- 📜 Modal: ประวัติสั่งซื้อ & ออเดอร์ของฉัน -->
   <div class="modal" id="my-orders-modal">
     <div class="modal-content">
       <span class="close-btn" onclick="document.getElementById('my-orders-modal').style.display='none'">&times;</span>
-      <h3>📜 ประวัติสั่งซื้อ & คลังรหัสของฉัน</h3>
+      <h3>📜 ประวัติสั่งซื้อ & ออเดอร์ของฉัน</h3>
       <div id="my-orders-list"><div class="loading">กำลังโหลดประวัติ...</div></div>
     </div>
   </div>
