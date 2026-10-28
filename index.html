@@ -535,16 +535,23 @@
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
+      // ตัวแปร k เอาไว้คำนวณย่อขนาดสัดส่วนไม่ให้เกิน 800 พิกเซล
       const k = Math.min(1, 800 / Math.max(img.width, img.height));
       const c = document.createElement("canvas");
-      c.width = img.width * k; c.height = img.height * k;
+      c.width = img.width * k; 
+      c.height = img.height * k;
+      
+      // วาดรูปลงบน Canvas ที่ย่อแล้ว
       c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      
+      // ตรงนี้คือการแปลงเป็น Base64 แบบบีบอัดคุณภาพเหลือ 70% (.toDataURL)
       resolve(c.toDataURL("image/jpeg", 0.7));
     };
     img.onerror = reject;
     img.src = URL.createObjectURL(file);
   });
 }
+
 
 
     document.getElementById("set-shop-logo-file").addEventListener("change", async (e) => {
@@ -1196,16 +1203,16 @@
       const raw = document.getElementById("auth-username").value.trim();
       const pass = document.getElementById("auth-password").value;
       try {
-        if (isSignUpMode)
-          const finalUsername = `${raw}_#${Math.floor(1000 + Math.random() * 9000)}`;
-        {
-          const cred = await createUserWithEmailAndPassword(auth, `${encodeURIComponent(finalUsername).toLowerCase()}@jokjing.shop`, pass);
-          await setDoc(doc(db, "users", cred.user.uid), { username: finalUsername, role: "customer", createdAt: new Date() });
-          alert("สมัครสมาชิกสำเร็จ!");
-        } else {
-          await signInWithEmailAndPassword(auth, raw.includes("@") ? raw : `${encodeURIComponent(raw).toLowerCase()}@jokjing.shop`, pass);
-          alert("เข้าสู่ระบบสำเร็จ!");
-        }
+        if (isSignUpMode) {
+  const finalUsername = `${raw}_#${Math.floor(1000 + Math.random() * 9000)}`;
+  const cred = await createUserWithEmailAndPassword(auth, `${encodeURIComponent(finalUsername).toLowerCase()}@jokjing.shop`, pass);
+  await setDoc(doc(db, "users", cred.user.uid), { username: finalUsername, role: "customer", createdAt: new Date() });
+  alert("สมัครสมาชิกสำเร็จ!");
+} else {
+  await signInWithEmailAndPassword(auth, raw.includes("@") ? raw : `${encodeURIComponent(raw).toLowerCase()}@jokjing.shop`, pass);
+  alert("เข้าสู่ระบบสำเร็จ!");
+}
+
         authModal.style.display = "none";
       } catch (err) { alert("ผิดพลาด: " + err.message); }
     });
