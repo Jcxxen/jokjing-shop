@@ -532,13 +532,20 @@
     document.getElementById("admin-modal-close").addEventListener("click", () => adminModal.style.display = "none");
 
     function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-      });
-    }
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 800 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = img.width * k; c.height = img.height * k;
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      resolve(c.toDataURL("image/jpeg", 0.7));
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 
     document.getElementById("set-shop-logo-file").addEventListener("change", async (e) => {
       const file = e.target.files[0];
@@ -662,29 +669,24 @@
     });
 
     async function updateAnalyticsStats() {
-      try {
-        const usersSnap = await getDocs(collection(db, "users"));
-        const ordersSnap = await getDocs(collection(db, "orders"));
-        const prodsSnap = await getDocs(collection(db, "products"));
-
-        let totalSold = 0;
-        let totalStock = 0;
-
-        ordersSnap.forEach(d => {
-          const o = d.data();
-          if (o.status === 'approved') totalSold += o.items?.length || 0;
-        });
-
-        prodsSnap.forEach(d => {
-          const p = d.data();
-          if (p.stockCodes && Array.isArray(p.stockCodes)) totalStock += p.stockCodes.length;
-        });
-
-        document.getElementById("stat-users").textContent = usersSnap.size;
-        document.getElementById("stat-sold").textContent = totalSold;
-        document.getElementById("stat-stock").textContent = totalStock;
-      } catch (e) { console.error(e); }
+  try {
+    const ref = doc(db, "stats", "public");
+    if (currentUserData?.role === "admin") {
+      const [u, o, p] = await Promise.all(["users", "orders", "products"].map(c => getDocs(collection(db, c))));
+      let sold = 0, stock = 0;
+      o.forEach(d => { if (d.data().status === "approved") sold += d.data().items?.length || 0; });
+      p.forEach(d => { stock += d.data().stockCount || 0; });
+      await setDoc(ref, { users: u.size, sold, stock });
     }
+    const s = (await getDoc(ref)).data();
+    if (s) {
+      document.getElementById("stat-users").textContent = s.users;
+      document.getElementById("stat-sold").textContent = s.sold;
+      document.getElementById("stat-stock").textContent = s.stock;
+    }
+  } catch (e) { console.error(e); }
+}
+
 
     // 👤 Modal แก้ไขโปรไฟล์ส่วนตัว
     window.openProfileEditModal = function() {
@@ -857,26 +859,29 @@
 
     window.approveOrder = async function(orderId) {
       const orderRef = doc(db, "orders", orderId);
-      const orderSnap = await getDoc(orderRef);
-      const orderData = orderSnap.data();
-      const item = orderData.items[0];
-      const prodRef = doc(db, "products", item.productId);
-      const prodSnap = await getDoc(prodRef);
-      
-      let assignedCode = "สำเร็จ";
-      if (prodSnap.exists()) {
-        let codes = prodSnap.data().stockCodes || [];
-        if (codes.length > 0) {
-          assignedCode = codes.shift();
-          await updateDoc(prodRef, { stockCodes: codes });
+      const order = (await getDoc(orderRef)).data();
+      if (order.status !== "pending") return;
+      const left = {};
+      const delivered = [];
+      for (const item of order.items) {
+        if (!left[item.productId]) {
+          left[item.productId] = (await getDoc(doc(db, "stock", item.productId))).data()?.codes || [];
         }
+        const code = left[item.productId].shift();
+        if (!code) { alert("สต็อกหมด: " + item.productName); return; }
+        delivered.push(`${item.productName}: ${code}`);
       }
-      await updateDoc(orderRef, { status: "approved", deliveredCode: assignedCode });
+      for (const pid in left) {
+        await setDoc(doc(db, "stock", pid), { codes: left[pid] });
+        await updateDoc(doc(db, "products", pid), { stockCount: left[pid].length });
+      } 
+      await updateDoc(orderRef, { status: "approved", deliveredCode: delivered.join(" | ") });
       alert("อนุมัติสำเร็จ!");
       loadAdminOrders();
       updateAnalyticsStats();
       loadStoreData();
     };
+
 
     window.refundOrder = async function(orderId) {
       if (!confirm("ยืนยันการคืนเงินให้ลูกค้า?")) return;
@@ -907,7 +912,7 @@
             <button onclick="deleteApp('${appObj.id}')" style="background:#ef4444; color:white; border:none; padding:2px 6px; border-radius:3px; font-size:11px; cursor:pointer;">ลบแอป</button>
           </div>`;
         appObj.items.forEach(item => {
-          const stockCount = item.stockCodes?.length || 0;
+          const stockCount = item.stockCount || 0;
           const lowStockAlert = stockCount <= 2 ? `<span style="color:red; font-weight:bold;">⚠️ สต็อกต่ำ</span>` : '';
           html += `<div style="background:#fff; border:1px solid var(--border-color); padding:8px; border-radius:6px; margin-top:6px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
             <div>
@@ -998,7 +1003,8 @@
         document.getElementById("p-price").value = d.price;
         document.getElementById("p-agent-price").value = d.agentPrice;
         document.getElementById("p-details").value = d.details || "";
-        document.getElementById("p-stock").value = (d.stockCodes || []).join("\n");
+        const st = await getDoc(doc(db, "stock", id));
+        document.getElementById("p-stock").value = (st.exists() ? st.data().codes : []).join("\n");
         document.getElementById("p-is-hot").checked = d.isHot || false;
         document.getElementById("p-is-active").checked = d.isActive !== false;
         document.getElementById("prod-modal").style.display = "flex";
@@ -1089,7 +1095,7 @@
             </div>`;
 
         appObj.items.forEach(item => {
-          const stockCount = item.stockCodes?.length || 0;
+          const stockCount = item.stockCount || 0;
           const isOutOfStock = stockCount <= 0;
           const price = isAgent ? (item.agentPrice || item.price) : item.price;
 
