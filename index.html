@@ -970,14 +970,16 @@
 
       const stockCodes = stockRaw ? stockRaw.split("\n").map(s => s.trim()).filter(s => s) : [];
 
-      const prodData = { name, appId, type, price, agentPrice, details, stockCodes, isHot, isActive };
-
+      const prodData = { name, appId, type, price, agentPrice, details, stockCount: stockCodes.length, isHot, isActive };
+      let pid = prodId;
       if (prodId) {
         await updateDoc(doc(db, "products", prodId), prodData);
       } else {
         prodData.createdAt = new Date();
-        await addDoc(collection(db, "products"), prodData);
+        pid = (await addDoc(collection(db, "products"), prodData)).id;
       }
+      await setDoc(doc(db, "stock", pid), { codes: stockCodes });
+
       alert("บันทึกสินค้าสำเร็จ!");
       document.getElementById("prod-modal").style.display = "none";
       loadAdminProducts();
