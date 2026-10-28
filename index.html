@@ -41,7 +41,6 @@
       color: #4f46e5; display: flex; justify-content: center;
       align-items: center; font-weight: bold; cursor: pointer; overflow: hidden; font-size: 16px;
     }
-    .user-avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
 
     /* Warning Banner */
     .warning-banner {
@@ -61,7 +60,7 @@
     }
     .step-box span { display: block; font-size: 14px; color: #4f46e5; margin-bottom: 3px; }
 
-    /* Stats Bar (เอายอดเติมรวมออกตามสั่ง เหลือ 3 ช่อง) */
+    /* Stats Bar */
     .stats-bar {
       max-width: 600px; margin: 0 auto 15px auto; padding: 0 15px;
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;
@@ -97,14 +96,14 @@
     .container { max-width: 600px; margin: 10px auto; padding: 0 15px; }
     #list { display: grid; gap: 15px; }
     
-    /* Product / App Card */
+    /* Product Card */
     .product-card {
       background: var(--card-bg); padding: 20px; border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 12px;
       border: 1px solid var(--border-color); position: relative;
     }
     .app-header-row { display: flex; align-items: center; gap: 12px; }
-    .app-icon-img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border-color); background: #ddd; }
+    .app-icon-img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border-color); background: #eee; }
     .product-info h3 { margin: 0; font-size: 18px; }
     .app-desc { font-size: 12px; color: #64748b; margin-top: 4px; }
     
@@ -172,6 +171,7 @@
     .admin-sec.active { display: block; }
     .admin-order-card { background: var(--bg-color); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
     .qr-img { width: 160px; height: 160px; margin: 10px auto; display: block; border: 2px solid var(--border-color); border-radius: 8px; object-fit: cover; }
+    .img-preview { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-color); margin-top: 5px; display: none; }
   </style>
 </head>
 <body>
@@ -202,7 +202,7 @@
     <div class="step-box"><span>3</span>รับรหัสทันที</div>
   </div>
 
-  <!-- Stats Bar (ไม่มี ยอดเติมรวม) -->
+  <!-- Stats Bar -->
   <div class="stats-bar">
     <div class="stat-card">ผู้ใช้ทั้งหมด<b id="stat-users">0</b></div>
     <div class="stat-card">ขายแล้ว<b id="stat-sold">0</b></div>
@@ -267,7 +267,7 @@
         <h4 style="margin:0 0 5px 0; font-size:13px;" id="payment-acc-title">ช่องทางโอนเงิน</h4>
         <img id="payment-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=PromptPayJokjing" class="qr-img" alt="QR">
         <div class="form-group" style="text-align:left; margin-top:8px;">
-          <label>แนบสลิปการโอน:</label>
+          <label>แนบสลิปการโอนเงิน (เลือกไฟล์รูป):</label>
           <input type="file" id="slip-file-input" accept="image/*" required>
         </div>
       </div>
@@ -275,16 +275,16 @@
     </div>
   </div>
 
-  <!-- 🛠️ Admin Dashboard Modal (อัปเกรดระบบแก้ไขหลังบ้านทั้งหมด) -->
+  <!-- 🛠️ Admin Dashboard Modal -->
   <div class="modal" id="admin-modal">
     <div class="modal-content" style="max-width: 560px;">
       <span class="close-btn" id="admin-modal-close">&times;</span>
-      <h3>👑 แผงควบคุมเจ้าของร้าน (แก้ไขได้ทุกอย่าง)</h3>
+      <h3>👑 แผงควบคุมเจ้าของร้าน</h3>
       
       <div class="admin-tabs">
         <button class="admin-tab-btn active" onclick="switchAdminTab('orders', this)">🧾 อนุมัติสลิป</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('add-prod', this)">➕ เพิ่มแอป/สินค้า</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab('stock', this)">📦 เติม/แก้วโค้ด</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('stock', this)">📦 เติม/แก้ไขโค้ด</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('shop-set', this)">⚙️ ตั้งค่าร้าน</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('users', this)">👥 สมาชิก</button>
       </div>
@@ -294,11 +294,15 @@
         <div id="admin-orders-container"><div class="loading">กำลังโหลดออเดอร์...</div></div>
       </div>
 
-      <!-- Tab 2: เพิ่มสินค้า/แอป (มีชื่อ, ระยะเวลา, ราคาลูกค้า, ราคาตัวแทน, ไอคอน, รายละเอียด และสถานะ พร้อม/ไม่พร้อมขาย) -->
+      <!-- Tab 2: เพิ่มสินค้า/แอป (อัปโหลดรูปไอคอนจากเครื่องได้เลย) -->
       <div class="admin-sec" id="admin-sec-add-prod">
         <form id="add-product-form">
           <div class="form-group"><label>ชื่อแอป / ชื่อสินค้า:</label><input type="text" id="prod-name" required placeholder="เช่น YouTube Premium"></div>
-          <div class="form-group"><label>ลิงก์รูปไอคอนแอป (URL รูปภาพ):</label><input type="text" id="prod-icon" placeholder="https://..."></div>
+          <div class="form-group">
+            <label>รูปไอคอนแอป (เลือกไฟล์จากเครื่อง):</label>
+            <input type="file" id="prod-icon-file" accept="image/*">
+            <img id="prod-icon-preview" class="img-preview" alt="Preview">
+          </div>
           <div class="form-group"><label>รายละเอียดใต้ไอคอน:</label><textarea id="prod-desc" rows="2" placeholder="รายละเอียดหรือเงื่อนไขแอปนี้"></textarea></div>
           <div class="form-group"><label>ระยะเวลาแพ็กเกจ:</label><input type="text" id="prod-dur" required placeholder="เช่น 1 เดือน"></div>
           <div class="form-group"><label>ราคาสำหรับลูกค้าทั่วไป (บาท):</label><input type="number" id="prod-price" required placeholder="เช่น 35"></div>
@@ -330,19 +334,27 @@
           <button type="submit" class="btn-submit">📥 เติมเข้าคลังสต็อก</button>
         </form>
 
-        <h4 style="font-size:13px; margin-bottom:5px;">📋 รายการรหัสในสต็อก (สามารถแก้ไขแต่ละรหัสได้):</h4>
+        <h4 style="font-size:13px; margin-bottom:5px;">📋 รายการรหัสในสต็อก (แก้ไข/ลบได้):</h4>
         <div id="editable-stock-list" style="background:var(--bg-color); border:1px solid var(--border-color); padding:8px; border-radius:6px; max-height:160px; overflow-y:auto; font-size:11px;"></div>
       </div>
 
-      <!-- Tab 4: ตั้งค่าหลังบ้านร้านค้า (ชื่อร้าน, โลโก้, บัญชี, คิวอาร์โค้ด) -->
+      <!-- Tab 4: ตั้งค่าหลังบ้านร้านค้า (เลือกรูปโลโก้ และ QR Code จากเครื่องได้เลย) -->
       <div class="admin-sec" id="admin-sec-shop-set">
         <form id="shop-settings-form">
           <div class="form-group"><label>ชื่อร้านค้า:</label><input type="text" id="set-shop-name" required placeholder="ร้านจกจิ๊ง"></div>
-          <div class="form-group"><label>ลิงก์รูปโลโก้ร้าน (URL):</label><input type="text" id="set-shop-logo" placeholder="https://..."></div>
+          <div class="form-group">
+            <label>เปลี่ยนรูปโลโก้ร้าน (เลือกไฟล์จากเครื่อง):</label>
+            <input type="file" id="set-shop-logo-file" accept="image/*">
+            <img id="set-shop-logo-preview" class="img-preview" alt="Preview">
+          </div>
           <hr style="margin:10px 0; border:0; border-top:1px solid var(--border-color);">
           <div class="form-group"><label>ชื่อบัญชีรับเงิน:</label><input type="text" id="set-acc-name" placeholder="ชื่อ นามสกุล"></div>
           <div class="form-group"><label>เลขที่บัญชี / พร้อมเพย์:</label><input type="text" id="set-acc-num" placeholder="0123456789"></div>
-          <div class="form-group"><label>ลิงก์รูป QR Code พร้อมเพย์ (URL):</label><input type="text" id="set-qr-url" placeholder="https://..."></div>
+          <div class="form-group">
+            <label>เปลี่ยนรูป QR Code พร้อมเพย์ (เลือกไฟล์จากเครื่อง):</label>
+            <input type="file" id="set-qr-file" accept="image/*">
+            <img id="set-qr-preview" class="img-preview" alt="Preview">
+          </div>
           <button type="submit" class="btn-submit">💾 บันทึกการตั้งค่าร้าน</button>
         </form>
       </div>
@@ -376,7 +388,11 @@
     let isSignUpMode = false;
     let allProductsData = [];
     let cart = [];
-    let shopConfig = { name: "ร้านจกจิ๊ง", logo: "", accName: "จิรภัทร", accNum: "0123456789", qrUrl: "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=PromptPayJokjing" };
+    let shopConfig = { name: "ร้านจกจิ๊ง", logo: "", accName: "จิรภัทร", accNum: "0123456789", qrUrl: "" };
+
+    let uploadedProdIconBase64 = "";
+    let uploadedShopLogoBase64 = "";
+    let uploadedQrBase64 = "";
 
     const authModal = document.getElementById("auth-modal");
     const cartModal = document.getElementById("cart-modal");
@@ -394,6 +410,47 @@
     document.getElementById("auth-modal-close").addEventListener("click", () => authModal.style.display = "none");
     document.getElementById("cart-modal-close").addEventListener("click", () => cartModal.style.display = "none");
     document.getElementById("admin-modal-close").addEventListener("click", () => adminModal.style.display = "none");
+
+    // ฟังก์ชันแปลงไฟล์ภาพเป็น Base64
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
+
+    // Event Listeners สำหรับแสดงตัวอย่างภาพเมื่อเลือกไฟล์
+    document.getElementById("prod-icon-file").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadedProdIconBase64 = await fileToBase64(file);
+        const prev = document.getElementById("prod-icon-preview");
+        prev.src = uploadedProdIconBase64;
+        prev.style.display = "block";
+      }
+    });
+
+    document.getElementById("set-shop-logo-file").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadedShopLogoBase64 = await fileToBase64(file);
+        const prev = document.getElementById("set-shop-logo-preview");
+        prev.src = uploadedShopLogoBase64;
+        prev.style.display = "block";
+      }
+    });
+
+    document.getElementById("set-qr-file").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadedQrBase64 = await fileToBase64(file);
+        const prev = document.getElementById("set-qr-preview");
+        prev.src = uploadedQrBase64;
+        prev.style.display = "block";
+      }
+    });
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -416,7 +473,7 @@
       updateAnalyticsStats();
     });
 
-    // โหลดการตั้งค่าร้านค้าจาก Firestore
+    // โหลดตั้งค่าร้านค้า
     async function loadShopConfig() {
       try {
         const docSnap = await getDoc(doc(db, "settings", "shopConfig"));
@@ -438,10 +495,8 @@
         }
 
         document.getElementById("set-shop-name").value = shopConfig.name;
-        document.getElementById("set-shop-logo").value = shopConfig.logo || "";
         document.getElementById("set-acc-name").value = shopConfig.accName || "";
         document.getElementById("set-acc-num").value = shopConfig.accNum || "";
-        document.getElementById("set-qr-url").value = shopConfig.qrUrl || "";
         document.getElementById("payment-acc-title").textContent = `โอนเข้าบัญชี: ${shopConfig.accName || '-'} (${shopConfig.accNum || '-'})`;
         if (shopConfig.qrUrl) document.getElementById("payment-qr-img").src = shopConfig.qrUrl;
       } catch (e) { console.error(e); }
@@ -451,17 +506,16 @@
     document.getElementById("shop-settings-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       shopConfig.name = document.getElementById("set-shop-name").value.trim();
-      shopConfig.logo = document.getElementById("set-shop-logo").value.trim();
+      if (uploadedShopLogoBase64) shopConfig.logo = uploadedShopLogoBase64;
       shopConfig.accName = document.getElementById("set-acc-name").value.trim();
       shopConfig.accNum = document.getElementById("set-acc-num").value.trim();
-      shopConfig.qrUrl = document.getElementById("set-qr-url").value.trim();
+      if (uploadedQrBase64) shopConfig.qrUrl = uploadedQrBase64;
 
       await setDoc(doc(db, "settings", "shopConfig"), shopConfig);
       alert("บันทึกการตั้งค่าร้านสำเร็จ!");
       loadShopConfig();
     });
 
-    // Stats (ไม่มี ยอดเติมรวม)
     async function updateAnalyticsStats() {
       try {
         const usersSnap = await getDocs(collection(db, "users"));
@@ -559,11 +613,10 @@
       } catch (err) { alert("เกิดข้อผิดพลาด: " + err.message); }
     };
 
-    // เพิ่มแอป/สินค้าใหม่ พร้อมราคาตัวแทนและสถานะ
+    // เพิ่มสินค้าใหม่
     document.getElementById("add-product-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("prod-name").value.trim();
-      const icon = document.getElementById("prod-icon").value.trim();
       const description = document.getElementById("prod-desc").value.trim();
       const duration = document.getElementById("prod-dur").value.trim();
       const price = Number(document.getElementById("prod-price").value);
@@ -571,10 +624,18 @@
       const status = document.getElementById("prod-status").value;
 
       await addDoc(collection(db, "products"), {
-        name, icon, description, status, options: [{ duration, price, agentPrice }], stockCodes: [], createdAt: new Date()
+        name, 
+        icon: uploadedProdIconBase64 || "", 
+        description, 
+        status, 
+        options: [{ duration, price, agentPrice }], 
+        stockCodes: [], 
+        createdAt: new Date()
       });
       alert("เพิ่มแอป/สินค้าสำเร็จ!");
       document.getElementById("add-product-form").reset();
+      uploadedProdIconBase64 = "";
+      document.getElementById("prod-icon-preview").style.display = "none";
       loadProducts();
       updateAnalyticsStats();
     });
@@ -591,7 +652,6 @@
       renderStockDetails();
     }
 
-    // แสดงและแก้ไขรหัสในสต็อกได้ทีละตัว
     window.renderStockDetails = function() {
       const selectedId = document.getElementById("stock-product-select").value;
       const product = allProductsData.find(p => p.id === selectedId);
@@ -620,7 +680,6 @@
       }
     };
 
-    // ฟังก์ชันแก้ไขรหัสเฉพาะตัวในสต็อก
     window.updateSingleCode = async function(prodId, index) {
       const newVal = document.getElementById(`code-val-${index}`).value.trim();
       const product = allProductsData.find(p => p.id === prodId);
@@ -632,7 +691,6 @@
       }
     };
 
-    // ฟังก์ชันลบรหัสเฉพาะตัวในสต็อก
     window.deleteSingleCode = async function(prodId, index) {
       if (!confirm("ต้องการลบรหัสนี้ออกจากสต็อก?")) return;
       const product = allProductsData.find(p => p.id === prodId);
@@ -705,7 +763,6 @@
         const isOutOfStock = stockCount <= 0;
         const statusActive = data.status !== 'inactive';
 
-        // ถ้าไม่ใช่แอดมิน และสินค้าไม่พร้อมขาย หรือหมดสต็อก ให้จัดการแสดงผลตามเหมาะสม
         if (!statusActive && !isAdmin) return;
 
         const displayPrice = isAgent ? (opt.agentPrice || opt.price) : opt.price;
