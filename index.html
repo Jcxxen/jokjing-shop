@@ -41,6 +41,7 @@
       color: #4f46e5; display: flex; justify-content: center;
       align-items: center; font-weight: bold; cursor: pointer; overflow: hidden; font-size: 16px;
     }
+    .user-avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
 
     /* Warning Banner */
     .warning-banner {
@@ -72,9 +73,7 @@
     .stat-card b { display: block; font-size: 14px; color: #ef4444; }
 
     /* Search Box */
-    .search-box-container {
-      max-width: 600px; margin: 0 auto 15px auto; padding: 0 15px;
-    }
+    .search-box-container { max-width: 600px; margin: 0 auto 15px auto; padding: 0 15px; }
     .search-input {
       width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color);
       font-size: 14px; background: var(--card-bg); color: var(--text-color);
@@ -106,7 +105,7 @@
     .container { max-width: 600px; margin: 10px auto; padding: 0 15px; }
     #list { display: grid; gap: 15px; }
     
-    /* App / Product Group Card */
+    /* App Card */
     .app-group-card {
       background: var(--card-bg); padding: 15px; border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
@@ -132,7 +131,6 @@
       border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; margin-top: 4px;
     }
     .hot-badge { background: #ef4444; color: white; font-size: 9px; padding: 2px 5px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
-    
     .loading { text-align: center; color: #64748b; padding: 40px; }
 
     .floating-cart {
@@ -179,6 +177,14 @@
 
     .review-item { background: var(--bg-color); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 12px; }
     .star-rating { color: #f59e0b; font-size: 14px; }
+    
+    /* Collapsible section for password change */
+    .collapsible-btn {
+      width: 100%; background: var(--bg-color); border: 1px solid var(--border-color);
+      padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: left;
+      display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 13px;
+    }
+    .collapsible-content { display: none; padding-top: 10px; }
   </style>
 </head>
 <body>
@@ -199,7 +205,7 @@
 
   <!-- 🚨 Warning Banner -->
   <div class="warning-banner" id="warning-banner-text">
-    ⚠️ แจ้งเตือน: เช็คสินค้าก่อนโอน ไม่คืนเงินทุกกรณี มีปัญหารอแก้ไขภายใน 24 ชม.
+    ⚠️ แจ้งเตือน: เช็คสินค้าก่อนเติมเงิน เติมเงินผิดหน้าแรก ไม่คืนเงินทุกกรณี
   </div>
 
   <!-- 3-Step Guide -->
@@ -230,7 +236,8 @@
     </div>
     <ul class="drawer-menu">
       <li><a onclick="closeDrawer()">🏠 หน้าหลัก</a></li>
-      <li><a onclick="openMyOrdersModal(); closeDrawer();">📜 ประวัติสั่งซื้อ & ออเดอร์ของฉัน</a></li>
+      <li><a onclick="openMyOrdersModal(); closeDrawer();">📜 ประวัติสั่งซื้อ & คลังรหัสของฉัน</a></li>
+      <li><a onclick="openProfileEditModal(); closeDrawer();">👤 แก้ไขโปรไฟล์ส่วนตัว</a></li>
       <li><a onclick="openReviewsModal(); closeDrawer();">⭐ รีวิวร้านค้า</a></li>
       <li><a onclick="openAdminModal(); closeDrawer();" id="admin-menu-link" style="color:#ef4444; font-weight:bold; display:none;">🛠️ แผงควบคุม (แอดมิน)</a></li>
       <li><a id="drawer-line-link" href="https://line.me/R/ti/p/@781wfctk" target="_blank" onclick="closeDrawer()">💬 ติดต่อแอดมิน (LINE)</a></li>
@@ -251,14 +258,18 @@
   </div>
 
   <!-- Modals -->
+  <!-- Auth Modal (พร้อมปุ่มสุ่มชื่อสไตล์ญี่ปุ่น 🎲) -->
   <div class="modal" id="auth-modal">
     <div class="modal-content">
       <span class="close-btn" id="auth-modal-close">&times;</span>
       <h3 id="modal-title">เข้าสู่ระบบ</h3>
       <form id="auth-form">
         <div class="form-group">
-          <label>ชื่อผู้ใช้งาน (Username)</label>
-          <input type="text" id="auth-username" required placeholder="กรอกชื่อผู้ใช้ของคุณ">
+          <label id="username-label">ชื่อผู้ใช้งาน (Username)</label>
+          <div style="display:flex; gap:6px;">
+            <input type="text" id="auth-username" required placeholder="กรอกชื่อผู้ใช้ของคุณ">
+            <button type="button" id="random-name-btn" style="display:none; background:#4f46e5; color:white; border:none; padding:0 12px; border-radius:6px; cursor:pointer; font-size:16px;">🎲 สุ่มชื่อ</button>
+          </div>
         </div>
         <div class="form-group">
           <label>รหัสผ่าน</label>
@@ -267,6 +278,40 @@
         <button type="submit" class="btn-submit" id="modal-submit-btn">เข้าสู่ระบบ</button>
       </form>
       <div class="switch-mode" id="switch-mode-btn">ยังไม่มีบัญชี? สมัครสมาชิก</div>
+    </div>
+  </div>
+
+  <!-- 👤 Modal: แก้ไขโปรไฟล์ส่วนตัว (ล็อครหัสสมาชิก + ย่อเปลี่ยนรหัสผ่าน) -->
+  <div class="modal" id="profile-edit-modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="document.getElementById('profile-edit-modal').style.display='none'">&times;</span>
+      <h3>👤 แก้ไขโปรไฟล์ส่วนตัว</h3>
+      <form id="profile-edit-form">
+        <div class="form-group">
+          <label>ชื่อผู้ใช้งาน (รหัสสมาชิกจะถูกล็อคไว้อัตโนมัติ):</label>
+          <input type="text" id="edit-username-input" required>
+        </div>
+        <div class="form-group">
+          <label>เปลี่ยนรูปโปรไฟล์ (เลือกไฟล์ภาพ):</label>
+          <input type="file" id="edit-avatar-file" accept="image/*">
+        </div>
+        <button type="submit" class="btn-submit" style="background:#4f46e5;">💾 บันทึกโปรไฟล์</button>
+      </form>
+
+      <!-- ซ่อนเมนูเปลี่ยนรหัสผ่าน (Collapsible Section) -->
+      <button class="collapsible-btn" onclick="togglePassCollapsible()">
+        <span>🔑 เปลี่ยนรหัสผ่าน</span>
+        <span id="pass-arrow">▼</span>
+      </button>
+      <div class="collapsible-content" id="pass-collapsible-box">
+        <form id="change-pass-form">
+          <div class="form-group">
+            <label>รหัสผ่านใหม่:</label>
+            <input type="password" id="new-password-input" required placeholder="รหัสผ่านใหม่ 6 ตัวขึ้นไป">
+          </div>
+          <button type="submit" class="btn-submit" style="background:#22c55e;">🔒 ยืนยันเปลี่ยนรหัสผ่าน</button>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -289,16 +334,14 @@
     </div>
   </div>
 
-  <!-- 📜 Modal: ประวัติสั่งซื้อ & ออเดอร์ของฉัน -->
   <div class="modal" id="my-orders-modal">
     <div class="modal-content">
       <span class="close-btn" onclick="document.getElementById('my-orders-modal').style.display='none'">&times;</span>
-      <h3>📜 ประวัติสั่งซื้อ & ออเดอร์ของฉัน</h3>
+      <h3>📜 ประวัติสั่งซื้อ & คลังรหัสของฉัน</h3>
       <div id="my-orders-list"><div class="loading">กำลังโหลดประวัติ...</div></div>
     </div>
   </div>
 
-  <!-- ⭐ Modal: รีวิวร้านค้า -->
   <div class="modal" id="reviews-modal">
     <div class="modal-content">
       <span class="close-btn" onclick="document.getElementById('reviews-modal').style.display='none'">&times;</span>
@@ -335,12 +378,10 @@
         <button class="admin-tab-btn" onclick="switchAdminTab('shop-set', this)">⚙️ ตั้งค่าร้าน</button>
       </div>
 
-      <!-- Tab 1: เติมเงิน / ออเดอร์ -->
       <div class="admin-sec active" id="admin-sec-orders">
         <div id="admin-orders-container"><div class="loading">กำลังโหลดคำขอ...</div></div>
       </div>
 
-      <!-- Tab 2: จัดการสินค้า -->
       <div class="admin-sec" id="admin-sec-products">
         <div style="display:flex; gap:8px; margin-bottom:12px;">
           <button onclick="openAppModal()" class="btn-submit" style="margin:0; background:#4f46e5;">+ เพิ่มแอป</button>
@@ -349,12 +390,10 @@
         <div id="admin-products-list-box"><div class="loading">กำลังโหลดรายการ...</div></div>
       </div>
 
-      <!-- Tab 3: สมาชิก -->
       <div class="admin-sec" id="admin-sec-users">
         <div id="admin-users-container"><div class="loading">กำลังโหลดสมาชิก...</div></div>
       </div>
 
-      <!-- Tab 4: ตั้งค่าร้าน -->
       <div class="admin-sec" id="admin-sec-shop-set">
         <form id="shop-settings-form">
           <div class="form-group"><label>ชื่อร้าน</label><input type="text" id="set-shop-name" required></div>
@@ -381,7 +420,6 @@
     </div>
   </div>
 
-  <!-- Sub Modals -->
   <div class="modal" id="app-modal">
     <div class="modal-content" style="max-width: 400px;">
       <span class="close-btn" onclick="document.getElementById('app-modal').style.display='none'">&times;</span>
@@ -410,7 +448,7 @@
           <label>อยู่ในแอป</label>
           <select id="p-app-select" required></select>
         </div>
-        <div class="form-group"><label>ประเภท (เช่น ไม่เคลมตลอดการใช้งาน / เคลมตลอดการใช้งาน / ทั่วไป)</label><input type="text" id="p-type" placeholder="เช่น ไม่เคลม"></div>
+        <div class="form-group"><label>ประเภท (เช่น ไม่เคลม / เคลม / ทั่วไป)</label><input type="text" id="p-type" placeholder="เช่น ไม่เคลม"></div>
         <div class="form-group"><label>ราคา (฿)</label><input type="number" id="p-price" required></div>
         <div class="form-group"><label>ราคาตัวแทน (฿)</label><input type="number" id="p-agent-price" required></div>
         <div class="form-group"><label>รายละเอียดที่ลูกค้าเห็น</label><textarea id="p-details" rows="2" placeholder="เมลปิด นำเมลและรหัสผ่านไปล็อกอินได้เลย"></textarea></div>
@@ -429,7 +467,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc, addDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA16VXbSopR3NTBMD-SU-RCgJV5zLPkkBU",
@@ -461,9 +499,19 @@
       qrUrl: ""
     };
 
+    // 🌸 คลังชื่อสไตล์ญี่ปุ่น 50 ชื่อ
+    const japaneseNames = [
+      "ฮารุ", "โซระ", "เรน", "เคนจิ", "ริว", "ยูมิ", "อากิระ", "โคทาโร่", "คาโอริ", "ฮิคาริ",
+      "ยูได", "ซากุระ", "ไดสึเกะ", "เคนตะ", "โชตะ", "ฮิโรชิ", "นาโอโกะ", "ชินจิ", "ฮายาโตะ", "เคโกะ",
+      "โยชิกิ", "ทาเคชิ", "คาซึโกะ", "อายูมิ", "มาซาชิ", "ยูโกะ", "เออิจิ", "มาโกโตะ", "โทโมยะ", "จิฮิโร่",
+      "ทาคุยะ", "รุย", "เค็นจิโร่", "เคโทะ", "ฮิเดกิ", "มิซากิ", "เรนะ", "เรียวตะ", "โชโกะ", "คาซึมะ",
+      "สึบาสะ", "ชินตาโร่", "ทาคุมิ", "ยูนะ", "ฮานะ", "โชยะ", "นาโอคิ", "เค็นโตะ", "อัตสึชิ", "ยูกิ"
+    ];
+
     let uploadedShopLogoBase64 = "";
     let uploadedQrBase64 = "";
     let uploadedAppIconBase64 = "";
+    let uploadedProfileAvatarBase64 = "";
 
     const authModal = document.getElementById("auth-modal");
     const cartModal = document.getElementById("cart-modal");
@@ -475,7 +523,7 @@
     window.closeDrawer = () => { sideDrawer.classList.remove("open"); menuOverlay.classList.remove("open"); };
     menuOverlay.addEventListener("click", closeDrawer);
 
-    document.getElementById("profile-icon-btn").addEventListener("click", () => auth.currentUser ? alert(`เข้าสู่ระบบอยู่แล้ว: ${currentUserData?.username} (${currentUserData?.role})`) : authModal.style.display = "flex");
+    document.getElementById("profile-icon-btn").addEventListener("click", () => auth.currentUser ? openProfileEditModal() : authModal.style.display = "flex");
     document.getElementById("floating-cart-btn").addEventListener("click", openCartModal);
 
     document.getElementById("auth-modal-close").addEventListener("click", () => authModal.style.display = "none");
@@ -521,13 +569,29 @@
       }
     });
 
+    document.getElementById("edit-avatar-file").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (file) uploadedProfileAvatarBase64 = await fileToBase64(file);
+    });
+
+    // 🎲 ปุ่มสุ่มชื่อสไตล์ญี่ปุ่น
+    document.getElementById("random-name-btn").addEventListener("click", () => {
+      const randomIndex = Math.floor(Math.random() * japaneseNames.length);
+      document.getElementById("auth-username").value = japaneseNames[randomIndex];
+    });
+
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           currentUserData = userDoc.data();
-          const fullName = currentUserData.username || "สมาชิก";
-          document.getElementById("profile-icon-btn").textContent = fullName.charAt(0);
+          const btn = document.getElementById("profile-icon-btn");
+          if (currentUserData.avatar) {
+            btn.innerHTML = `<img src="${currentUserData.avatar}" alt="Avatar">`;
+          } else {
+            const fullName = currentUserData.username || "สมาชิก";
+            btn.textContent = fullName.charAt(0);
+          }
           if (currentUserData.role === "admin") {
             document.getElementById("admin-menu-link").style.display = "block";
           }
@@ -621,7 +685,61 @@
       } catch (e) { console.error(e); }
     }
 
-    // --- 📜 คลังรหัส & ประวัติการสั่งซื้อของฉัน ---
+    // 👤 Modal แก้ไขโปรไฟล์ส่วนตัว
+    window.openProfileEditModal = function() {
+      if (!auth.currentUser) { alert("กรุณาเข้าสู่ระบบก่อนครับ"); authModal.style.display = "flex"; return; }
+      const input = document.getElementById("edit-username-input");
+      const fullUsername = currentUserData ? currentUserData.username : "";
+      
+      // ดึงเฉพาะชื่อหน้า แยกจากรหัสรันสมาชิก (_#001)
+      const parts = fullUsername.split("_#");
+      input.value = parts[0] || fullUsername;
+
+      document.getElementById("profile-edit-modal").style.display = "flex";
+    };
+
+    document.getElementById("profile-edit-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const newBaseName = document.getElementById("edit-username-input").value.trim();
+      const fullUsername = currentUserData ? currentUserData.username : "";
+      const parts = fullUsername.split("_#");
+      const memberCode = parts[1] ? `_#${parts[1]}` : "";
+      const finalUsername = newBaseName + memberCode;
+
+      const updatePayload = { username: finalUsername };
+      if (uploadedProfileAvatarBase64) updatePayload.avatar = uploadedProfileAvatarBase64;
+
+      await updateDoc(doc(db, "users", auth.currentUser.uid), updatePayload);
+      alert("แก้ไขโปรไฟล์สำเร็จ!");
+      document.getElementById("profile-edit-modal").style.display = "none";
+      location.reload();
+    });
+
+    // 🔑 ซ่อน/ขยายเมนูเปลี่ยนรหัสผ่าน
+    window.togglePassCollapsible = function() {
+      const box = document.getElementById("pass-collapsible-box");
+      const arrow = document.getElementById("pass-arrow");
+      if (box.style.display === "block") {
+        box.style.display = "none";
+        arrow.textContent = "▼";
+      } else {
+        box.style.display = "block";
+        arrow.textContent = "▲";
+      }
+    };
+
+    document.getElementById("change-pass-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const newPass = document.getElementById("new-password-input").value;
+      try {
+        await updatePassword(auth.currentUser, newPass);
+        alert("เปลี่ยนรหัสผ่านสำเร็จ!");
+        document.getElementById("new-password-input").value = "";
+        togglePassCollapsible();
+      } catch (err) { alert("เกิดข้อผิดพลาด: " + err.message); }
+    });
+
+    // 📜 ประวัติสั่งซื้อ
     window.openMyOrdersModal = async function() {
       if (!auth.currentUser) { alert("กรุณาเข้าสู่ระบบก่อนดูประวัติสั่งซื้อ"); authModal.style.display = "flex"; return; }
       const modal = document.getElementById("my-orders-modal");
@@ -647,7 +765,7 @@
       });
     };
 
-    // --- ⭐ ระบบรีวิวร้านค้า ---
+    // ⭐ รีวิวร้านค้า
     window.openReviewsModal = async function() {
       document.getElementById("reviews-modal").style.display = "flex";
       loadReviews();
@@ -689,7 +807,7 @@
       loadReviews();
     });
 
-    // --- 🛠️ Admin Dashboard ---
+    // 🛠️ Admin Dashboard
     window.openAdminModal = function() {
       if (!currentUserData || currentUserData.role !== "admin") {
         alert("เฉพาะเจ้าของร้านเท่านั้น");
@@ -931,7 +1049,7 @@
       }
     };
 
-    // --- หน้าร้านและระบบค้นหา ---
+    // หน้าร้านและระบบค้นหา
     async function loadStoreData() {
       try {
         const appSnap = await getDocs(collection(db, "apps"));
@@ -1055,11 +1173,13 @@
       reader.readAsDataURL(slipFile);
     });
 
+    // สลับโหมด เข้าสู่ระบบ / สมัครสมาชิก (แสดงปุ่มสุ่มชื่อเฉพาะตอนสมัคร)
     document.getElementById("switch-mode-btn").addEventListener("click", () => {
       isSignUpMode = !isSignUpMode;
       document.getElementById("modal-title").textContent = isSignUpMode ? "สมัครสมาชิก" : "เข้าสู่ระบบ";
       document.getElementById("modal-submit-btn").textContent = isSignUpMode ? "ยืนยันสมัครสมาชิก" : "เข้าสู่ระบบ";
       document.getElementById("switch-mode-btn").textContent = isSignUpMode ? "มีบัญชีอยู่แล้ว? เข้าสู่ระบบ" : "ยังไม่มีบัญชี? สมัครสมาชิก";
+      document.getElementById("random-name-btn").style.display = isSignUpMode ? "block" : "none";
     });
 
     document.getElementById("auth-form").addEventListener("submit", async (e) => {
