@@ -38,16 +38,22 @@
     .brand-logo img { width: 100%; height: 100%; object-fit: cover; }
     .brand-title { font-size: 18px; font-weight: bold; }
 
-    /* ไอคอนยูสเซอร์ลอยตรงกลางขอบล่างของจอ */
-    .floating-profile-btn {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      width: 58px; height: 58px; border-radius: 50%;
-      background: #4f46e5; color: white; border: 3px solid white;
-      display: flex; justify-content: center; align-items: center;
-      font-size: 24px; font-weight: bold; cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.25); z-index: 99; overflow: hidden;
+    /* 📌 แถบเมนูลอยตรงกลางขอบล่างของจอ เรียงตามสั่ง */
+    .floating-bottom-nav {
+      position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
+      background: #ffffff; border: 1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 14px; border-radius: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 99;
+      max-width: 95vw; overflow-x: auto;
     }
-    .floating-profile-btn img { width: 100%; height: 100%; object-fit: cover; }
+    .nav-item-btn {
+      background: none; border: none; display: flex; flex-direction: column; align-items: center;
+      cursor: pointer; font-size: 10px; font-weight: 600; color: #64748b; padding: 4px 8px;
+      border-radius: 20px; transition: all 0.2s; white-space: nowrap;
+    }
+    .nav-item-btn span.icon { font-size: 18px; margin-bottom: 2px; }
+    .nav-item-btn:hover, .nav-item-btn.active { color: #4f46e5; background: #e0e7ff; }
 
     /* Drawer Menu */
     .drawer {
@@ -73,6 +79,8 @@
     .overlay.open { display: block; }
 
     .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+    .page-section { display: none; }
+    .page-section.active { display: block; }
 
     /* Modal Styles */
     .modal {
@@ -152,20 +160,62 @@
       <span id="drawer-brand-name">ร้านจกจิ๊ง Shop</span>
     </div>
     <ul class="drawer-menu">
-      <li><a onclick="closeDrawer()">🏠 หน้าหลัก</a></li>
+      <li><a onclick="switchPage('home'); closeDrawer();">🏠 หน้าหลัก</a></li>
+      <li><a onclick="switchPage('products'); closeDrawer();">📦 สินค้า</a></li>
+      <li><a onclick="switchPage('orders'); closeDrawer();">📋 ออเดอร์ของฉัน</a></li>
+      <li><a onclick="openAccountTab(); closeDrawer();">👤 ยูสเซอร์ / บัญชี</a></li>
+      <li><a onclick="switchPage('contact'); closeDrawer();">📞 ติดต่อ</a></li>
       <li><a onclick="openAdminModal(); closeDrawer();" id="admin-menu-link" style="color:#ef4444; font-weight:bold; display:none;">🛠️ แผงควบคุม (แอดมิน)</a></li>
     </ul>
   </div>
 
   <!-- Main Content Area -->
   <div class="container">
-    <h3 style="text-align:center;">🛒 ยินดีต้อนรับสู่ร้านจกจิ๊ง</h3>
-    <p style="text-align:center; color:#64748b; font-size:14px;">กดที่ไอคอนผู้ใช้ด้านล่างสุดเพื่อเข้าสู่ระบบ หรือจัดการโปรไฟล์ของคุณ</p>
+    <!-- หน้าหลัก -->
+    <div id="page-home" class="page-section active">
+      <h3 style="text-align:center;">🛒 ยินดีต้อนรับสู่ร้านจกจิ๊ง</h3>
+      <p style="text-align:center; color:#64748b; font-size:14px;">บริการดิจิทัลพรีเมียม ยูทูป เน็ตฟลิกซ์ และสินค้าอื่นๆ อีกเพียบ</p>
+    </div>
+
+    <!-- สินค้า -->
+    <div id="page-products" class="page-section">
+      <h3 style="text-align:center;">📦 รายการสินค้าทั้งหมด</h3>
+      <p style="text-align:center; color:#64748b;">เลือกชมแพ็กเกจและบริการต่างๆ ได้ที่นี่</p>
+    </div>
+
+    <!-- ออเดอร์ของฉัน -->
+    <div id="page-orders" class="page-section">
+      <h3 style="text-align:center;">📋 ออเดอร์ของฉัน</h3>
+      <p style="text-align:center; color:#64748b;">ประวัติการสั่งซื้อและสถานะบริการของคุณ</p>
+    </div>
+
+    <!-- ติดต่อ -->
+    <div id="page-contact" class="page-section">
+      <h3 style="text-align:center;">📞 ช่องทางการติดต่อ</h3>
+      <p style="text-align:center; color:#64748b;">LINE Official: @earnpremium หรือติดต่อผ่านแอดมินได้ตลอด 24 ชม.</p>
+    </div>
   </div>
 
-  <!-- ไอคอนยูสเซอร์ลอยอยู่ตรงกลางขอบล่างของจอ -->
-  <div class="floating-profile-btn" id="floating-profile-btn">
-    👤
+  <!-- 📌 แถบเมนูลอยตรงกลางขอบล่างของจอ เรียงตามสั่ง: หน้าหลัก | สินค้า | ออเดอร์ของฉัน | ยูสเซอร์ | บัญชี | ติดต่อ -->
+  <div class="floating-bottom-nav">
+    <button class="nav-item-btn active" onclick="switchPage('home')">
+      <span class="icon">🏠</span>หน้าหลัก
+    </button>
+    <button class="nav-item-btn" onclick="switchPage('products')">
+      <span class="icon">📦</span>สินค้า
+    </button>
+    <button class="nav-item-btn" onclick="switchPage('orders')">
+      <span class="icon">📋</span>ออเดอร์ของฉัน
+    </button>
+    <button class="nav-item-btn" id="nav-btn-user" onclick="handleUserMenuClick()">
+      <span class="icon" id="bottom-user-icon">👤</span>ยูสเซอร์
+    </button>
+    <button class="nav-item-btn" id="nav-btn-account" onclick="handleAccountMenuClick()">
+      <span class="icon">⚙️</span>บัญชี
+    </button>
+    <button class="nav-item-btn" onclick="switchPage('contact')">
+      <span class="icon">📞</span>ติดต่อ
+    </button>
   </div>
 
   <!-- Modal Auth: เข้าสู่ระบบ / สมัครสมาชิก ผ่านอีเมล -->
@@ -195,9 +245,9 @@
   <div class="modal" id="profile-modal">
     <div class="modal-content">
       <span class="close-btn" onclick="document.getElementById('profile-modal').style.display='none'">&times;</span>
-      <h3 style="margin-top:0;">👤 โปรไฟล์ส่วนตัว</h3>
+      <h3 style="margin-top:0;">👤 โปรไฟล์ส่วนตัว / บัญชี</h3>
 
-      <!-- 4. รูปโปรไฟล์ -->
+      <!-- รูปโปรไฟล์ -->
       <div class="form-group" style="text-align:center;">
         <label>รูปโปรไฟล์</label>
         <div class="avatar-crop-box" onclick="document.getElementById('edit-avatar-file').click()">
@@ -207,22 +257,22 @@
         <input type="file" id="edit-avatar-file" accept="image/*" style="display:none;">
       </div>
 
-      <!-- 3. สิทธิ์ของยูส -->
+      <!-- สิทธิ์ของยูส -->
       <div style="text-align:center;">
         <div id="user-role-badge-container"></div>
       </div>
 
-      <!-- 1. ชื่อผู้ใช้ -->
+      <!-- ชื่อผู้ใช้ -->
       <div class="form-group">
         <label>1. ชื่อผู้ใช้ (เปลี่ยนชื่อได้):</label>
         <input type="text" id="profile-username-input" minlength="5">
       </div>
 
-      <!-- 2. รหัสผ่านปัจจุบัน (ดึงค่ามาแสดง) -->
+      <!-- รหัสผ่านปัจจุบัน -->
       <div class="form-group">
         <label>2. รหัสผ่านปัจจุบัน:</label>
         <div class="pass-input-wrapper">
-          <input type="password" id="profile-password-display" readonly value="">
+          <input type="password" id="profile-password-display" readonly value="••••••••">
           <button type="button" class="toggle-eye-btn" id="toggle-eye-btn" onclick="togglePassView()">👁️</button>
         </div>
       </div>
@@ -242,10 +292,10 @@
         </form>
       </div>
 
-      <!-- 6. บันทึกอัตโนมัติ Status -->
+      <!-- บันทึกอัตโนมัติ Status -->
       <div id="auto-save-status" style="text-align:center; font-size:11px; color:#22c55e; margin-top:8px; height:15px;"></div>
 
-      <!-- 7. ปุ่มออกจากระบบ -->
+      <!-- ปุ่มออกจากระบบ -->
       <button class="btn-danger" onclick="logoutUser()">🚪 ออกจากระบบ</button>
     </div>
   </div>
@@ -285,7 +335,7 @@
     let currentUserData = null;
     let isSignUpMode = false;
     let autoSaveTimer = null;
-    let currentRawPassword = localStorage.getItem("saved_pass") || ""; // ดึงรหัสผ่านที่เคยจำไว้
+    let currentRawPassword = "";
     let cropper = null;
 
     const authModal = document.getElementById("auth-modal");
@@ -300,25 +350,51 @@
 
     document.getElementById("auth-modal-close").addEventListener("click", () => authModal.style.display = "none");
 
-    document.getElementById("floating-profile-btn").addEventListener("click", () => {
+    // ระบบเปลี่ยนหน้าจอ
+    window.switchPage = function(pageId) {
+      document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+
+      document.querySelectorAll('.floating-bottom-nav button').forEach(btn => btn.classList.remove('active'));
+      event && event.currentTarget && event.currentTarget.classList.add('active');
+    };
+
+    // ปุ่ม ยูสเซอร์
+    window.handleUserMenuClick = function() {
       if (auth.currentUser) {
         openProfileModal();
       } else {
         authModal.style.display = "flex";
       }
-    });
+    };
+
+    // ปุ่ม บัญชี
+    window.handleAccountMenuClick = function() {
+      if (auth.currentUser) {
+        openProfileModal();
+      } else {
+        authModal.style.display = "flex";
+      }
+    };
+
+    window.openAccountTab = function() {
+      if (auth.currentUser) {
+        openProfileModal();
+      } else {
+        authModal.style.display = "flex";
+      }
+    };
 
     onAuthStateChanged(auth, async (user) => {
-      const floatBtn = document.getElementById("floating-profile-btn");
+      const userIconSpan = document.getElementById("bottom-user-icon");
       if (user) {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           currentUserData = userDoc.data();
           if (currentUserData.avatar) {
-            floatBtn.innerHTML = `<img src="${currentUserData.avatar}" alt="Avatar">`;
+            userIconSpan.innerHTML = `<img src="${currentUserData.avatar}" alt="Avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">`;
           } else {
-            const defaultName = currentUserData.username || currentUserData.email || "👤";
-            floatBtn.textContent = defaultName.charAt(0).toUpperCase();
+            userIconSpan.textContent = "👤";
           }
           if (currentUserData.role === "admin") {
             document.getElementById("admin-menu-link").style.display = "block";
@@ -326,12 +402,12 @@
         }
       } else {
         currentUserData = null;
-        floatBtn.textContent = "👤";
+        userIconSpan.textContent = "👤";
         document.getElementById("admin-menu-link").style.display = "none";
       }
     });
 
-    // ระบบเลือกรูปภาพและเปิดหน้าต่างครอปอิสระตามกรอบที่เอิร์นต้องการ
+    // ระบบเลือกรูปภาพและเปิดหน้าต่างครอปอิสระตามกรอบ
     document.getElementById("edit-avatar-file").addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -366,7 +442,7 @@
       if (auth.currentUser) {
         await updateDoc(doc(db, "users", auth.currentUser.uid), { avatar: croppedBase64 });
         triggerAutoSaveNotice("บันทึกรูปโปรไฟล์เรียบร้อย!");
-        document.getElementById("floating-profile-btn").innerHTML = `<img src="${croppedBase64}" alt="Avatar">`;
+        document.getElementById("bottom-user-icon").innerHTML = `<img src="${croppedBase64}" alt="Avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">`;
       }
     });
 
@@ -374,7 +450,7 @@
       if (!currentUserData) return;
       
       document.getElementById("profile-username-input").value = currentUserData.username || "";
-      document.getElementById("profile-password-display").value = currentRawPassword || "••••••••";
+      document.getElementById("profile-password-display").value = "••••••••";
       document.getElementById("profile-password-display").type = "password";
       document.getElementById("toggle-eye-btn").textContent = "👁️";
 
@@ -443,30 +519,26 @@
       }
     };
 
-    // เปลี่ยนรหัสผ่านใหม่ (ป้องกัน Error กรณีเซสชันเก่าหมดอายุ)
     document.getElementById("change-pass-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const newPass = document.getElementById("new-password-input").value;
       if (newPass.length < 6) { alert("รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร"); return; }
       try {
         await updatePassword(auth.currentUser, newPass);
-        currentRawPassword = newPass;
-        localStorage.setItem("saved_pass", newPass);
-        document.getElementById("profile-password-display").value = newPass;
+        document.getElementById("profile-password-display").value = "••••••••";
         alert("เปลี่ยนรหัสผ่านสำเร็จ!");
         document.getElementById("new-password-input").value = "";
         togglePassCollapsible();
-      } catch (err) { 
+      } catch (err) {
         if (err.code === 'auth/requires-recent-login') {
           alert("เพื่อความปลอดภัย กรุณาออกจากระบบแล้วเข้าสู่ระบบใหม่อีกครั้ง ก่อนเปลี่ยนรหัสผ่าน");
         } else {
-          alert("ผิดพลาด: " + err.message); 
+          alert("เกิดข้อผิดพลาด: " + err.message);
         }
       }
     });
 
     window.logoutUser = async function() {
-      localStorage.removeItem("saved_pass");
       await signOut(auth);
       profileModal.style.display = "none";
       alert("ออกจากระบบเรียบร้อยแล้ว");
@@ -507,13 +579,9 @@
             role: "customer", 
             createdAt: new Date() 
           });
-          currentRawPassword = pass;
-          localStorage.setItem("saved_pass", pass);
           alert("สมัครสมาชิกสำเร็จ!");
         } else {
           await signInWithEmailAndPassword(auth, email, pass);
-          currentRawPassword = pass;
-          localStorage.setItem("saved_pass", pass);
           alert("เข้าสู่ระบบสำเร็จ!");
         }
         authModal.style.display = "none";
@@ -525,8 +593,6 @@
           errorMsg = "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษรขึ้นไป";
         } else if (err.code === 'auth/invalid-email') {
           errorMsg = "รูปแบบอีเมลไม่ถูกต้อง";
-        } else if (err.code === 'auth/invalid-credential') {
-          errorMsg = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
         }
         alert("เกิดข้อผิดพลาด: " + errorMsg); 
       }
