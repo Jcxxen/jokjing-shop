@@ -109,7 +109,6 @@
       width: 100%; height: 110px; object-fit: cover; border-radius: 8px; background: #f1f5f9; margin-bottom: 8px;
     }
     .product-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
-    .product-rating { font-size: 11px; color: #f59e0b; margin-bottom: 4px; font-weight: bold; }
     .product-price { font-size: 15px; font-weight: bold; color: #16a34a; }
     .product-price-agent { color: #2563eb; }
     .agent-tag {
@@ -238,11 +237,14 @@
       </div>
       <div class="product-grid" id="home-product-grid"></div>
 
-      <!-- โซนแสดงรีวิวจากลูกค้าล่าสุด -->
-      <div style="margin-top: 30px;">
-        <h3 style="margin-bottom: 10px;">💬 รีวิวจากลูกค้าล่าสุด</h3>
-        <div id="recent-reviews-container">
-          <p style="font-size:13px; color:#64748b;">กำลังโหลดรีวิว...</p>
+      <!-- 💬 โซนรีวิวรวมของร้านค้า -->
+      <div style="margin-top: 30px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="margin:0; font-size:16px;">💬 รีวิวความประทับใจจากลูกค้า</h3>
+          <button onclick="openStoreReviewModal()" style="background:#4f46e5; color:white; border:none; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:bold; cursor:pointer;">✍️ เขียนรีวิวร้าน</button>
+        </div>
+        <div id="store-reviews-container">
+          <p style="font-size:13px; color:#64748b; text-align:center;">กำลังโหลดรีวิวร้านค้า...</p>
         </div>
       </div>
     </div>
@@ -325,24 +327,23 @@
     </div>
   </div>
 
-  <!-- Modal เขียนรีวิวสินค้า -->
-  <div class="modal" id="review-modal">
+  <!-- Modal เขียนรีวิวร้านค้า -->
+  <div class="modal" id="store-review-modal">
     <div class="modal-content">
-      <span class="close-btn" onclick="document.getElementById('review-modal').style.display='none'">&times;</span>
-      <h3 style="margin-top:0;">⭐ เขียนรีวิวสินค้า</h3>
-      <form id="review-form">
-        <input type="hidden" id="review-order-id">
+      <span class="close-btn" onclick="document.getElementById('store-review-modal').style.display='none'">&times;</span>
+      <h3 style="margin-top:0;">✍️ เขียนรีวิวร้านจกจิ๊ง</h3>
+      <form id="store-review-form">
         <div class="form-group">
-          <label>เลือกคะแนนความพึงพอใจ:</label>
+          <label>ให้คะแนนความพึงพอใจ:</label>
           <div class="star-rating-select" id="star-select-box">
             <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5" class="selected">★</span>
           </div>
         </div>
         <div class="form-group">
-          <label>ข้อความรีวิว/ความรู้สึก:</label>
-          <textarea id="review-comment-input" rows="3" placeholder="บริการรวดเร็วมาก ใช้งานได้จริง..." required></textarea>
+          <label>ข้อความรีวิวความประทับใจ:</label>
+          <textarea id="store-review-comment" rows="3" placeholder="ร้านนี้ส่งไวมากครับ พ่อค้าใจดี บริการประทับใจมากๆ..." required></textarea>
         </div>
-        <button type="submit" class="btn-submit">✨ ส่งรีวิว</button>
+        <button type="submit" class="btn-submit">✨ ส่งรีวิวร้านค้า</button>
       </form>
     </div>
   </div>
@@ -471,7 +472,7 @@
     const cropperModal = document.getElementById("cropper-modal");
     const cartModal = document.getElementById("cart-modal");
     const checkoutModal = document.getElementById("checkout-modal");
-    const reviewModal = document.getElementById("review-modal");
+    const storeReviewModal = document.getElementById("store-review-modal");
     const sideDrawer = document.getElementById("side-drawer");
     const menuOverlay = document.getElementById("menu-overlay");
 
@@ -494,7 +495,7 @@
       if(event && event.currentTarget) event.currentTarget.classList.add('active');
 
       if (pageId === 'orders') { loadMyOrders(); }
-      if (pageId === 'home') { loadRecentReviews(); }
+      if (pageId === 'home') { loadStoreReviews(); }
     };
 
     window.handleAccountClick = function() {
@@ -509,7 +510,7 @@
         } catch(e) { console.error(e); }
       } else { currentUserData = null; }
       renderProducts();
-      loadRecentReviews();
+      loadStoreReviews();
     });
 
     function renderProducts() {
@@ -525,7 +526,6 @@
             ${isAgent ? `<span class="agent-tag">ราคาส่งตัวแทน</span>` : ""}
             <img src="${p.img}" class="product-img" alt="${p.name}">
             <div class="product-title">${p.name}</div>
-            <div class="product-rating">★★★★★ (5.0)</div>
             <div class="product-price ${isAgent ? 'product-price-agent' : ''}">${finalPrice} ฿</div>
             <button class="btn-add-cart" onclick="addToCart('${p.id}')">🛒 ใส่ตะกร้า</button>
           </div>
@@ -677,7 +677,6 @@
                   <span>${o.codeDelivery || "ติดต่อแอดมินเพื่อรับรหัส"}</span>
                   <button onclick="navigator.clipboard.writeText('${o.codeDelivery}'); showToast('คัดลอกรหัสเรียบร้อย!')" style="float:right; border:none; background:#4f46e5; color:white; border-radius:4px; padding:2px 8px; font-size:11px; cursor:pointer;">📋 คัดลอก</button>
                 </div>
-                <button onclick="openReviewModal('${orderId}')" style="margin-top:8px; background:#f59e0b; color:white; border:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;">⭐ เขียนรีวิวสินค้า</button>
               ` : ''}
             </div>
           `;
@@ -688,6 +687,7 @@
       }
     }
 
+    // ⭐ เลือกดาวเขียนรีวิวร้าน
     document.querySelectorAll('#star-select-box span').forEach(star => {
       star.addEventListener('click', (e) => {
         selectedRating = parseInt(e.target.getAttribute('data-val'));
@@ -698,38 +698,43 @@
       });
     });
 
-    window.openReviewModal = function(orderId) {
-      document.getElementById("review-order-id").value = orderId;
-      reviewModal.style.display = "flex";
+    window.openStoreReviewModal = function() {
+      if(!auth.currentUser) {
+        authModal.style.display = "flex";
+        showToast("กรุณาเข้าสู่ระบบก่อนเขียนรีวิว");
+        return;
+      }
+      storeReviewModal.style.display = "flex";
     };
 
-    document.getElementById("review-form").addEventListener("submit", async (e) => {
+    // บันทึกรีวิวร้านค้าลง Firestore
+    document.getElementById("store-review-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const orderId = document.getElementById("review-order-id").value;
-      const comment = document.getElementById("review-comment-input").value.trim();
+      const comment = document.getElementById("store-review-comment").value.trim();
 
-      await addDoc(collection(db, "reviews"), {
-        orderId: orderId,
+      await addDoc(collection(db, "store_reviews"), {
         userEmail: auth.currentUser.email,
-        username: currentUserData ? (currentUserData.username || "ลูกค้า") : "ลูกค้า",
+        username: currentUserData ? (currentUserData.username || "ลูกค้าทั่วไป") : "ลูกค้าทั่วไป",
+        avatar: currentUserData ? (currentUserData.avatar || "") : "",
         rating: selectedRating,
         comment: comment,
         createdAt: new Date()
       });
 
-      reviewModal.style.display = "none";
-      document.getElementById("review-comment-input").value = "";
-      showToast("ขอบคุณสำหรับรีวิวครับ!");
-      loadRecentReviews();
+      storeReviewModal.style.display = "none";
+      document.getElementById("store-review-comment").value = "";
+      showToast("ขอบคุณสำหรับรีวิวร้านค้าครับ!");
+      loadStoreReviews();
     });
 
-    async function loadRecentReviews() {
-      const container = document.getElementById("recent-reviews-container");
+    // โหลดรีวิวร้านค้าทั้งหมดมาแสดงหน้าแรก
+    async function loadStoreReviews() {
+      const container = document.getElementById("store-reviews-container");
       try {
-        const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"), limit(3));
+        const q = query(collection(db, "store_reviews"), orderBy("createdAt", "desc"), limit(5));
         const snap = await getDocs(q);
         if (snap.empty) {
-          container.innerHTML = `<p style="font-size:13px; color:#64748b;">ยังไม่มีรีวิว ร่วมเป็นคนแรกที่รีวิวร้านจกจิ๊ง!</p>`;
+          container.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center;">ยังไม่มีรีวิว ร่วมเป็นคนแรกที่รีวิวร้านจกจิ๊ง!</p>`;
           return;
         }
 
@@ -737,19 +742,27 @@
         snap.forEach(docSnap => {
           const r = docSnap.data();
           const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+          const avatarSrc = r.avatar || "";
+          const avatarHtml = avatarSrc 
+            ? `<img src="${avatarSrc}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">` 
+            : `<span style="font-size:18px;">👤</span>`;
+
           html += `
-            <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:8px;">
-              <div style="display:flex; justify-content:space-between; font-size:12px;">
-                <strong>👤 ${r.username}</strong>
-                <span style="color:#f59e0b;">${stars}</span>
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px; margin-bottom:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  ${avatarHtml}
+                  <strong>${r.username}</strong>
+                </div>
+                <span style="color:#f59e0b; font-size:14px;">${stars}</span>
               </div>
-              <p style="margin:4px 0 0 0; font-size:13px; color:#475569;">"${r.comment}"</p>
+              <p style="margin:6px 0 0 0; font-size:13px; color:#334155;">"${r.comment}"</p>
             </div>
           `;
         });
         container.innerHTML = html;
       } catch(e) {
-        container.innerHTML = `<p style="font-size:13px; color:#64748b;">ยังไม่มีรีวิวในขณะนี้</p>`;
+        container.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center;">ยังไม่มีรีวิวในขณะนี้</p>`;
       }
     }
 
