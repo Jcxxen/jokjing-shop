@@ -38,18 +38,18 @@
     .brand-logo img { width: 100%; height: 100%; object-fit: cover; }
     .brand-title { font-size: 18px; font-weight: bold; }
 
-    /* 📌 แถบเมนูลอยตรงกลางขอบล่างของจอ เรียงตามสั่ง */
+    /* 📌 แถบเมนูลอยตรงกลางขอบล่างของจอ เหลือ 4 ปุ่มตามสั่ง */
     .floating-bottom-nav {
       position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
       background: #ffffff; border: 1px solid var(--border-color);
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 8px 14px; border-radius: 30px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 8px 16px; border-radius: 30px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 99;
       max-width: 95vw; overflow-x: auto;
     }
     .nav-item-btn {
       background: none; border: none; display: flex; flex-direction: column; align-items: center;
-      cursor: pointer; font-size: 10px; font-weight: 600; color: #64748b; padding: 4px 8px;
+      cursor: pointer; font-size: 11px; font-weight: 600; color: #64748b; padding: 6px 12px;
       border-radius: 20px; transition: all 0.2s; white-space: nowrap;
     }
     .nav-item-btn span.icon { font-size: 18px; margin-bottom: 2px; }
@@ -152,7 +152,7 @@
     </div>
   </div>
 
-  <!-- Drawer Menu -->
+  <!-- Drawer Menu (ขีด 3 ขีด มีแค่ "ช่องทางติดต่อแอดมิน" ตามสั่ง) -->
   <div class="overlay" id="menu-overlay"></div>
   <div class="drawer" id="side-drawer">
     <div class="drawer-header">
@@ -160,12 +160,7 @@
       <span id="drawer-brand-name">ร้านจกจิ๊ง Shop</span>
     </div>
     <ul class="drawer-menu">
-      <li><a onclick="switchPage('home'); closeDrawer();">🏠 หน้าหลัก</a></li>
-      <li><a onclick="switchPage('products'); closeDrawer();">📦 สินค้า</a></li>
-      <li><a onclick="switchPage('orders'); closeDrawer();">📋 ออเดอร์ของฉัน</a></li>
-      <li><a onclick="openAccountTab(); closeDrawer();">👤 ยูสเซอร์ / บัญชี</a></li>
-      <li><a onclick="switchPage('contact'); closeDrawer();">📞 ติดต่อ</a></li>
-      <li><a onclick="openAdminModal(); closeDrawer();" id="admin-menu-link" style="color:#ef4444; font-weight:bold; display:none;">🛠️ แผงควบคุม (แอดมิน)</a></li>
+      <li><a href="https://line.me/R/ti/p/@781wfctk" target="_blank" onclick="closeDrawer()">💬 ช่องทางติดต่อแอดมิน</a></li>
     </ul>
   </div>
 
@@ -189,14 +184,14 @@
       <p style="text-align:center; color:#64748b;">ประวัติการสั่งซื้อและสถานะบริการของคุณ</p>
     </div>
 
-    <!-- ติดต่อ -->
-    <div id="page-contact" class="page-section">
-      <h3 style="text-align:center;">📞 ช่องทางการติดต่อ</h3>
-      <p style="text-align:center; color:#64748b;">LINE Official: @earnpremium หรือติดต่อผ่านแอดมินได้ตลอด 24 ชม.</p>
+    <!-- บัญชี -->
+    <div id="page-account" class="page-section">
+      <h3 style="text-align:center;">⚙️ บัญชีผู้ใช้</h3>
+      <p style="text-align:center; color:#64748b;">จัดการข้อมูลส่วนตัวและโปรไฟล์ของคุณ</p>
     </div>
   </div>
 
-  <!-- 📌 แถบเมนูลอยตรงกลางขอบล่างของจอ เรียงตามสั่ง: หน้าหลัก | สินค้า | ออเดอร์ของฉัน | ยูสเซอร์ | บัญชี | ติดต่อ -->
+  <!-- 📌 แถบเมนูลอยขอบล่าง เรียงจากซ้ายไปขวา: หน้าหลัก | สินค้า | ออเดอร์ของฉัน | บัญชี -->
   <div class="floating-bottom-nav">
     <button class="nav-item-btn active" onclick="switchPage('home')">
       <span class="icon">🏠</span>หน้าหลัก
@@ -207,14 +202,8 @@
     <button class="nav-item-btn" onclick="switchPage('orders')">
       <span class="icon">📋</span>ออเดอร์ของฉัน
     </button>
-    <button class="nav-item-btn" id="nav-btn-user" onclick="handleUserMenuClick()">
-      <span class="icon" id="bottom-user-icon">👤</span>ยูสเซอร์
-    </button>
-    <button class="nav-item-btn" id="nav-btn-account" onclick="handleAccountMenuClick()">
+    <button class="nav-item-btn" onclick="handleAccountClick()">
       <span class="icon">⚙️</span>บัญชี
-    </button>
-    <button class="nav-item-btn" onclick="switchPage('contact')">
-      <span class="icon">📞</span>ติดต่อ
     </button>
   </div>
 
@@ -245,7 +234,7 @@
   <div class="modal" id="profile-modal">
     <div class="modal-content">
       <span class="close-btn" onclick="document.getElementById('profile-modal').style.display='none'">&times;</span>
-      <h3 style="margin-top:0;">👤 โปรไฟล์ส่วนตัว / บัญชี</h3>
+      <h3 style="margin-top:0;">👤 บัญชีผู้ใช้ของฉัน</h3>
 
       <!-- รูปโปรไฟล์ -->
       <div class="form-group" style="text-align:center;">
@@ -335,7 +324,6 @@
     let currentUserData = null;
     let isSignUpMode = false;
     let autoSaveTimer = null;
-    let currentRawPassword = "";
     let cropper = null;
 
     const authModal = document.getElementById("auth-modal");
@@ -348,8 +336,6 @@
     window.closeDrawer = () => { sideDrawer.classList.remove("open"); menuOverlay.classList.remove("open"); };
     menuOverlay.addEventListener("click", closeDrawer);
 
-    document.getElementById("auth-modal-close").addEventListener("click", () => authModal.style.display = "none");
-
     // ระบบเปลี่ยนหน้าจอ
     window.switchPage = function(pageId) {
       document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
@@ -359,51 +345,25 @@
       event && event.currentTarget && event.currentTarget.classList.add('active');
     };
 
-    // ปุ่ม ยูสเซอร์
-    window.handleUserMenuClick = function() {
+    // ปุ่ม "บัญชี" ด้านล่าง
+    window.handleAccountClick = function() {
       if (auth.currentUser) {
         openProfileModal();
       } else {
         authModal.style.display = "flex";
       }
-    };
-
-    // ปุ่ม บัญชี
-    window.handleAccountMenuClick = function() {
-      if (auth.currentUser) {
-        openProfileModal();
-      } else {
-        authModal.style.display = "flex";
-      }
-    };
-
-    window.openAccountTab = function() {
-      if (auth.currentUser) {
-        openProfileModal();
-      } else {
-        authModal.style.display = "flex";
-      }
+      document.querySelectorAll('.floating-bottom-nav button').forEach(btn => btn.classList.remove('active'));
+      event && event.currentTarget && event.currentTarget.classList.add('active');
     };
 
     onAuthStateChanged(auth, async (user) => {
-      const userIconSpan = document.getElementById("bottom-user-icon");
       if (user) {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           currentUserData = userDoc.data();
-          if (currentUserData.avatar) {
-            userIconSpan.innerHTML = `<img src="${currentUserData.avatar}" alt="Avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">`;
-          } else {
-            userIconSpan.textContent = "👤";
-          }
-          if (currentUserData.role === "admin") {
-            document.getElementById("admin-menu-link").style.display = "block";
-          }
         }
       } else {
         currentUserData = null;
-        userIconSpan.textContent = "👤";
-        document.getElementById("admin-menu-link").style.display = "none";
       }
     });
 
@@ -442,7 +402,6 @@
       if (auth.currentUser) {
         await updateDoc(doc(db, "users", auth.currentUser.uid), { avatar: croppedBase64 });
         triggerAutoSaveNotice("บันทึกรูปโปรไฟล์เรียบร้อย!");
-        document.getElementById("bottom-user-icon").innerHTML = `<img src="${croppedBase64}" alt="Avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">`;
       }
     });
 
