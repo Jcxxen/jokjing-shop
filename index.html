@@ -132,7 +132,7 @@
     .status-pending { background: #fef3c7; color: #d97706; }
     .status-approved { background: #dcfce7; color: #15803d; }
     .code-vault-box {
-      background: #f8fafc; border: 1px dashed #cbd5e1; padding: 10px; border-radius: 6px; margin-top: 8px; font-family: monospace; font-size: 13px;
+      background: #f8fafc; border: 1px dashed #cbd5e1; padding: 10px; border-radius: 6px; margin-top: 8px; font-family: monospace; font-size: 13px; word-break: break-all;
     }
 
     /* Rating Stars Input */
@@ -347,7 +347,7 @@
     </div>
   </div>
 
-  <!-- Modal Auth: เข้าสู่ระบบ / สมัครสมาชิก -->
+  <!-- Modal Auth -->
   <div class="modal" id="auth-modal">
     <div class="modal-content">
       <span class="close-btn" id="auth-modal-close">&times;</span>
@@ -433,7 +433,6 @@
     </div>
   </div>
 
-  <!-- โหลดสคริปต์ Cropper.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -481,14 +480,6 @@
       toast.textContent = message;
       toast.classList.add("show");
       setTimeout(() => { toast.classList.remove("show"); }, 2500);
-    }
-
-    // 🔔 ฟังก์ชันส่งการแจ้งเตือนเข้า LINE Notify ของแอดมิน
-    async function sendLineNotify(message) {
-      // ใช้ Webhook หรือการยิงสั่งการแจ้งเตือน
-      try {
-        console.log("LINE Notify Triggered:", message);
-      } catch(e) { console.error(e); }
     }
 
     document.getElementById("open-drawer-btn").addEventListener("click", () => { sideDrawer.classList.add("open"); menuOverlay.classList.add("open"); });
@@ -616,7 +607,6 @@
       checkoutModal.style.display = "flex";
     };
 
-    // ส่งแนบสลิปชำระเงิน + ส่งแจ้งเตือนเข้า LINE
     document.getElementById("slip-upload-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const fileInput = document.getElementById("slip-file-input");
@@ -627,7 +617,7 @@
         const slipBase64 = evt.target.result;
         const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-        const newOrderDoc = await addDoc(collection(db, "orders"), {
+        await addDoc(collection(db, "orders"), {
           userId: auth.currentUser.uid,
           userEmail: auth.currentUser.email,
           items: cart,
@@ -638,10 +628,6 @@
           createdAt: new Date()
         });
 
-        // 🔔 ส่งข้อความแจ้งเตือนเข้า LINE แอดมิน
-        const itemsListStr = cart.map(i => `${i.name} (x${i.qty})`).join(', ');
-        sendLineNotify(`🛒 มีออเดอร์ใหม่เข้า!\nเลขออเดอร์: #${newOrderDoc.id.substring(0,8)}\nผู้ซื้อ: ${auth.currentUser.email}\nรายการ: ${itemsListStr}\nยอดโอน: ${total} บาท`);
-
         cart = [];
         updateCartBadge();
         checkoutModal.style.display = "none";
@@ -651,7 +637,6 @@
       reader.readAsDataURL(fileInput.files[0]);
     });
 
-    // โหลดประวัติคำสั่งซื้อ
     async function loadMyOrders() {
       const container = document.getElementById("my-orders-list");
       if(!auth.currentUser) {
@@ -703,7 +688,6 @@
       }
     }
 
-    // ⭐ ระบบเลือกให้ดาวรีวิว
     document.querySelectorAll('#star-select-box span').forEach(star => {
       star.addEventListener('click', (e) => {
         selectedRating = parseInt(e.target.getAttribute('data-val'));
@@ -719,7 +703,6 @@
       reviewModal.style.display = "flex";
     };
 
-    // ส่งรีวิวลง Firestore
     document.getElementById("review-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const orderId = document.getElementById("review-order-id").value;
@@ -740,7 +723,6 @@
       loadRecentReviews();
     });
 
-    // โหลดรีวิวมาโชว์หน้าแรก
     async function loadRecentReviews() {
       const container = document.getElementById("recent-reviews-container");
       try {
@@ -771,7 +753,6 @@
       }
     }
 
-    // ระบบเลือกรูปภาพโปรไฟล์
     document.getElementById("edit-avatar-file").addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (file) {
